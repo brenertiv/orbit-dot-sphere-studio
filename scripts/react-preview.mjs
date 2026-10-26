@@ -1,5 +1,8 @@
 import { build } from 'esbuild';
+import { prepareDesign,presets } from '../dist/geometry.js';
+import { configSource } from '../dist/export.js';
 import { mkdir,writeFile } from 'node:fs/promises';
 await mkdir('dist/example',{recursive:true});
+await writeFile('dist/example/sphere-config.js',configSource(prepareDesign(presets[process.argv[2] || 'reference'])));
 await build({stdin:{contents:`import React,{useState,StrictMode} from 'react';import{createRoot}from'react-dom/client';import{DotSphere}from'./dist/runtime/DotSphere.js';import sphere from'./dist/example/sphere-config.js';function Demo(){const[theme,setTheme]=useState('dark'),[shown,setShown]=useState(true);return React.createElement('main',{style:{maxWidth:600,margin:'30px auto',fontFamily:'system-ui'}},React.createElement('h1',null,'Exported React component'),React.createElement('button',{onClick:()=>setTheme(t=>t==='dark'?'light':'dark')},'Toggle theme'),React.createElement('button',{onClick:()=>setShown(s=>!s)},shown?'Unmount':'Mount'),React.createElement('div',{style:{background:theme==='dark'?'#060909':'#f5f6f2',marginTop:20}},shown&&React.createElement(DotSphere,{config:sphere,theme})));}createRoot(document.getElementById('root')).render(React.createElement(StrictMode,null,React.createElement(Demo)));`,resolveDir:process.cwd(),loader:'js'},bundle:true,format:'esm',outfile:'dist/example/demo.js',define:{'process.env.NODE_ENV':'"development"'}});
 await writeFile('dist/example/index.html','<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Orbit React integration check</title><div id="root"></div><script type="module" src="./demo.js"></script></html>');

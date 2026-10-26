@@ -21,8 +21,10 @@
         <div class="panel-title"><h2>Design</h2><button class="text-button" id="reset">Reset <span aria-hidden="true">↺</span></button></div>
         <div class="control-section"><div class="section-title"><span>01</span><h3>Structure</h3></div>
           <label class="select-label" for="distribution">Arrangement</label><select id="distribution"><option value="layered">Layered constellation</option><option value="shell">Surface shell</option><option value="cloud">Filled volume</option></select>
+          <label class="select-label spaced-label" for="pattern">Point pattern</label><select id="pattern"><option value="random">Random scatter</option><option value="even">Evenly spaced</option><option value="rings">Latitude rings</option><option value="spiral">Spiral rows</option></select>
           <label class="range-label" for="count">Dots <output id="count-value">560</output></label><input type="range" id="count" min="100" max="1200" step="20">
           <label class="range-label" for="size">Dot size <output id="size-value">2.3</output></label><input type="range" id="size" min="0.7" max="4" step="0.1">
+          <label class="range-label" for="sizeVariation">Size variation <output id="sizeVariation-value">100%</output></label><input type="range" id="sizeVariation" min="0" max="1" step="0.05">
           <label class="range-label" for="connections">Connections <output id="connections-value">2</output></label><input type="range" id="connections" min="0" max="3" step="1">
           <label class="range-label" for="lineOpacity">Line opacity <output id="lineOpacity-value">16%</output></label><input type="range" id="lineOpacity" min="0" max="0.45" step="0.01">
         </div>
@@ -39,9 +41,18 @@
             <label class="range-label" for="breathSpeed">Breathing speed <output id="breathSpeed-value">0.60</output></label><input type="range" id="breathSpeed" min="0" max="2" step="0.05">
             <p class="control-hint">Breathing gently expands the whole sphere.<br>Set an effect’s amount to zero to turn it off.</p>
           </div></details>
+          <details class="advanced-motion" id="wave-controls"><summary>Surface waves & twist <span aria-hidden="true">+</span></summary><div class="advanced-content">
+            <label class="range-label" for="waveHeight">Wave height <output id="waveHeight-value">0%</output></label><input type="range" id="waveHeight" min="0" max="0.3" step="0.01">
+            <label class="range-label" for="waveFrequency">Wave frequency <output id="waveFrequency-value">2.2</output></label><input type="range" id="waveFrequency" min="0.5" max="6" step="0.1">
+            <label class="range-label" for="waveSpeed">Wave travel <output id="waveSpeed-value">0.80</output></label><input type="range" id="waveSpeed" min="-2" max="2" step="0.05">
+            <label class="range-label" for="twist">Twist <output id="twist-value">0°</output></label><input type="range" id="twist" min="-2" max="2" step="0.05">
+            <p class="control-hint">Low frequency makes broad folds. Negative travel reverses the waves. Zero height turns waves off.</p>
+          </div></details>
         </div>
         <div class="control-section"><div class="section-title"><span>03</span><h3>Appearance</h3></div>
-          <div class="palette-heading"><span>Color palette</span><span id="palette-name">Aurora</span></div><div class="palettes" id="palettes" aria-label="Color palettes"></div>
+          <label class="select-label" for="colorMode">Color mode</label><select id="colorMode"><option value="palette">Color palette</option><option value="single">Single color per theme</option></select>
+          <div id="palette-controls"><div class="palette-heading"><span>Color palette</span><span id="palette-name">Aurora</span></div><div class="palettes" id="palettes" aria-label="Color palettes"></div></div>
+          <div id="single-controls" hidden><div class="single-color"><label for="darkColor">On dark</label><input type="color" id="darkColor" value="#f5f7f7"><output id="darkColor-value">#f5f7f7</output></div><div class="single-color"><label for="lightColor">On light</label><input type="color" id="lightColor" value="#28343a"><output id="lightColor-value">#28343a</output></div></div>
           <label class="range-label" for="depth">Depth fade <output id="depth-value">70%</output></label><input type="range" id="depth" min="0" max="1" step="0.01">
           <p class="control-hint">Each palette is tuned for light & dark.</p>
         </div>

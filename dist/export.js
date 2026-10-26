@@ -26,6 +26,8 @@ paused={true} freezes animation at its current position. Reduced motion automati
 
 The generator exports rotation speed, axis (X, Y, Z, or tumble), forward/reverse direction, drift amount and speed, shimmer amount and speed, and breathing amount and speed. Drift deforms the sphere locally; breathing expands and contracts it uniformly. Each effect advances independently, so changing its speed preserves its cycle position. Changing the rotation axis changes the orientation model immediately.
 
+Point patterns (random, evenly spaced, latitude rings, spiral rows) and size variation are prepared in the editor and stored as coordinates and sizes. The component does not ship a pattern generator. Surface waves add height, frequency, and signed travel speed; zero speed freezes the folds, while zero height disables them. Twist bends the shape around its vertical axis. All wave and twist fields are optional for older exports. Single-color mode stores a separate color for each theme in the same palette format, with no additional runtime dependency.
+
 ## Integration
 
 DotSphere.js includes 'use client' for Next.js / React Server Components. Browser APIs are used only in useEffect, so server rendering produces an empty canvas safely. The component removes its animation frame, observers, and event listeners on unmount, including React Strict Mode's development remount.

@@ -8,34 +8,49 @@ export const palettes = {
 export const presets = {
   reference: { name: 'Constellation', subtitle: 'Inspired by your reference', count: 560, size: 2.3, connections: 2, lineOpacity: 0.16, speed: 0.24, deformation: 0.12, pulse: 0.13, depth: 0.7, seed: 4219, palette: 'aurora', distribution: 'layered' },
   halo: { name: 'Halo', subtitle: 'Quiet, precise, weightless', count: 420, size: 1.8, connections: 0, lineOpacity: 0.14, speed: 0.15, deformation: 0.025, pulse: 0.08, depth: 0.85, seed: 7612, palette: 'glacier', distribution: 'shell' },
-  drift: { name: 'Solar drift', subtitle: 'Warm light, organic motion', count: 380, size: 2.8, connections: 1, lineOpacity: 0.12, speed: 0.18, deformation: 0.2, pulse: 0.28, depth: 0.6, seed: 1018, palette: 'ember', distribution: 'cloud' }
+  drift: { name: 'Solar drift', subtitle: 'Warm light, organic motion', count: 380, size: 2.8, connections: 1, lineOpacity: 0.12, speed: 0.18, deformation: 0.2, pulse: 0.28, depth: 0.6, seed: 1018, palette: 'ember', distribution: 'cloud' },
+  waveform: { name:'Waveform', subtitle:'Flowing folds, inspired by your GIF', count:1200, size:1.7, connections:0, lineOpacity:0.12, speed:0.32, deformation:0, pulse:0, depth:0.24, seed:2408, palette:'mono', distribution:'shell', pattern:'rings', sizeVariation:0, colorMode:'single', darkColor:'#f5f7f7', lightColor:'#28343a', waveHeight:0.14, waveFrequency:1.5, waveSpeed:0.8, twist:1.2, axis:'tumble' }
 };
-export const motionDefaults = { axis:'y', direction:1, driftSpeed:0.65, pulseSpeed:1.3, breathing:0, breathSpeed:0.6 };
+export const motionDefaults = { axis:'y', direction:1, driftSpeed:0.65, pulseSpeed:1.3, breathing:0, breathSpeed:0.6, waveHeight:0, waveFrequency:2.2, waveSpeed:0.8, twist:0 };
+const designDefaults = { pattern:'random', sizeVariation:1, colorMode:'palette', darkColor:'#f5f7f7', lightColor:'#28343a' };
+export function themesFromSettings(s) {
+  return {dark:{colors:s.colorMode==='single'?Array(4).fill(s.darkColor):[...palettes[s.palette].dark],line:'#8b9eab'},light:{colors:s.colorMode==='single'?Array(4).fill(s.lightColor):[...palettes[s.palette].light],line:'#4d6574'}};
+}
 export function motionFromSettings(s) {
-  return { speed:s.speed, deformation:s.deformation, pulse:s.pulse, axis:s.axis, direction:s.direction, driftSpeed:s.driftSpeed, pulseSpeed:s.pulseSpeed, breathing:s.breathing, breathSpeed:s.breathSpeed };
+  return { speed:s.speed, deformation:s.deformation, pulse:s.pulse, axis:s.axis, direction:s.direction, driftSpeed:s.driftSpeed, pulseSpeed:s.pulseSpeed, breathing:s.breathing, breathSpeed:s.breathSpeed, waveHeight:s.waveHeight, waveFrequency:s.waveFrequency, waveSpeed:s.waveSpeed, twist:s.twist };
 }
 export function random(seed) {
   let n = seed >>> 0;
   return () => { n += 0x6D2B79F5; let t = n; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 }
 const round = n => Math.round(n * 10000) / 10000;
+// Editor only: distribute an exact count over equal-spacing latitude rows.
+function ringDirections(count, offset) {
+  const rows=Math.max(4,Math.round(Math.sqrt(count/2))),weights=Array.from({length:rows},(_,i)=>Math.sin(Math.PI*(i+0.5)/rows));
+  const total=weights.reduce((a,b)=>a+b,0),counts=weights.map(w=>Math.floor(w/total*count));
+  const remainder=weights.map((w,i)=>({i,f:w/total*count-counts[i]})).sort((a,b)=>b.f-a.f);
+  for(let i=0,left=count-counts.reduce((a,b)=>a+b,0);i<left;i++)counts[remainder[i].i]++;
+  return counts.flatMap((n,row)=>Array.from({length:n},(_,i)=>[Math.cos(Math.PI*(row+0.5)/rows),offset+2*Math.PI*i/n]));
+}
 export function prepareDesign(settings) {
   const s = validateSettings(settings), rng = random(s.seed), points = [], colors = [], sizes = [];
+  const offset=random(s.seed)()*Math.PI*2,rings=s.pattern==='rings'?ringDirections(s.count,offset):null;
   for (let i = 0; i < s.count; i++) {
-    const strand = s.distribution === 'layered' && i > s.count * 0.85;
+    const strand = s.pattern==='random' && s.distribution === 'layered' && i > s.count * 0.85;
     let x, y, z;
     if (strand) {
       const t = (i - s.count * 0.85) / (s.count * 0.15), a = t * Math.PI * 7;
       x = Math.cos(a) * (0.22 + t * 0.18); y = (t - 0.5) * 1.35; z = Math.sin(a) * 0.38;
     } else {
-      const v = 1 - rng() * 2, a = rng() * Math.PI * 2;
-      const r = s.distribution === 'shell' ? 0.98 + rng() * 0.02 : s.distribution === 'cloud' ? Math.cbrt(rng()) : rng() > 0.36 ? 0.87 + rng() * 0.13 : 0.18 + Math.cbrt(rng()) * 0.62;
+      const v = rings?rings[i][0]:s.pattern==='random'?1-rng()*2:1-2*(i+0.5)/s.count;
+      const a = rings?rings[i][1]:s.pattern==='random'?rng()*Math.PI*2:offset+(s.pattern==='even'?i*Math.PI*(3-Math.sqrt(5)):i/s.count*Math.PI*2*Math.sqrt(s.count)*0.65);
+      const r = s.distribution === 'shell' ? s.pattern==='random'?0.98+rng()*0.02:1 : s.distribution === 'cloud' ? Math.cbrt(rng()) : rng() > 0.36 ? 0.87 + rng() * 0.13 : 0.18 + Math.cbrt(rng()) * 0.62;
       const h = Math.sqrt(1 - v*v); x = Math.cos(a)*h*r; y = v*r; z = Math.sin(a)*h*r;
     }
     points.push(round(x), round(y), round(z));
     const r = Math.hypot(x,y,z);
     colors.push(r > 0.82 ? (rng() > 0.86 ? 2 : 0) : rng() > 0.82 ? 3 : 1);
-    sizes.push(round(0.6 + rng() * 0.65));
+    sizes.push(round(1+(0.6+rng()*0.65-1)*s.sizeVariation));
   }
   const links = [], seen = new Set();
   for (let i = 0; i < s.count && s.connections; i++) {
@@ -56,12 +71,12 @@ export function prepareDesign(settings) {
       if (a !== b && !seen.has(key)) { seen.add(key); links.push(a,b); }
     }
   }
-  return { version: 1, seed: s.seed, points, colors, sizes, links, appearance: { size:s.size, lineOpacity:s.lineOpacity, depth:s.depth }, motion: motionFromSettings(s), themes: { dark:{ colors:[...palettes[s.palette].dark], line:'#8b9eab' }, light:{ colors:[...palettes[s.palette].light], line:'#4d6574' } } };
+  return { version: 1, seed: s.seed, points, colors, sizes, links, appearance: { size:s.size, lineOpacity:s.lineOpacity, depth:s.depth }, motion: motionFromSettings(s), themes: themesFromSettings(s) };
 }
 export function validateSettings(input) {
   if (!input || typeof input !== 'object') throw new Error('Expected an Orbit design object.');
-  const s = { ...presets.reference, ...motionDefaults };
-  const ranges = {count:[100,1200],size:[0.7,4],connections:[0,3],lineOpacity:[0,0.45],speed:[0,0.8],deformation:[0,0.3],pulse:[0,0.5],depth:[0,1],seed:[0,4294967295],driftSpeed:[0,2],pulseSpeed:[0,4],breathing:[0,0.2],breathSpeed:[0,2]};
+  const s = { ...presets.reference, ...motionDefaults, ...designDefaults };
+  const ranges = {count:[100,1200],size:[0.7,4],connections:[0,3],lineOpacity:[0,0.45],speed:[0,0.8],deformation:[0,0.3],pulse:[0,0.5],depth:[0,1],seed:[0,4294967295],driftSpeed:[0,2],pulseSpeed:[0,4],breathing:[0,0.2],breathSpeed:[0,2],sizeVariation:[0,1],waveHeight:[0,0.3],waveFrequency:[0.5,6],waveSpeed:[-2,2],twist:[-2,2]};
   for (const [key,[min,max]] of Object.entries(ranges)) {
     if (input[key] !== undefined) {
       if (typeof input[key] !== 'number' || !Number.isFinite(input[key]) || input[key]<min || input[key]>max) throw new Error('Invalid '+key+' setting.');
@@ -72,5 +87,9 @@ export function validateSettings(input) {
   if (input.distribution !== undefined) { if (!['layered','shell','cloud'].includes(input.distribution)) throw new Error('Unknown distribution.'); s.distribution=input.distribution; }
   if (input.axis !== undefined) { if (!['x','y','z','tumble'].includes(input.axis)) throw new Error('Unknown rotation axis.'); s.axis=input.axis; }
   if (input.direction !== undefined) { if (![1,-1].includes(input.direction)) throw new Error('Invalid rotation direction.'); s.direction=input.direction; }
+  for(const [key,allowed] of Object.entries({pattern:['random','even','rings','spiral'],colorMode:['palette','single']})) {
+    if(input[key]!==undefined){if(!allowed.includes(input[key]))throw new Error('Invalid '+key+'.');s[key]=input[key];}
+  }
+  for(const key of ['darkColor','lightColor'])if(input[key]!==undefined){if(typeof input[key]!=='string'||!/^#[0-9a-f]{6}$/i.test(input[key]))throw new Error('Invalid '+key+'.');s[key]=input[key];}
   return s;
 }

@@ -6,12 +6,12 @@ export function createSphere(canvas, config, options = {}) {
   const themeQuery = matchMedia('(prefers-color-scheme: dark)');
   let opts = { theme:'system', paused:false, ...options };
   let data, xyz, projected, order, count, frame = 0, time = 0, last = 0;
-  let rotation = 0, drift = 0, shimmer = 0, breath = 0;
+  let rotation = 0, drift = 0, shimmer = 0, breath = 0, surface = 0;
   let width = 0, height = 0, dpr = 1, visible = true, destroyed = false;
   let palette, fromPalette = null, themeStart = 0, frameCount = 0, cost = 0, quality = 1;
   const rgb = hex => [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];
   const themeName = () => opts.theme === 'system' ? (themeQuery.matches ? 'dark':'light') : opts.theme;
-  const active = () => !destroyed && visible && !document.hidden && !opts.paused && !motionQuery.matches && width > 0 && height > 0 && (data.motion.speed || data.motion.deformation*(data.motion.driftSpeed ?? 0.65) || data.motion.pulse*(data.motion.pulseSpeed ?? 1.3) || (data.motion.breathing || 0)*(data.motion.breathSpeed ?? 0.6));
+  const active = () => !destroyed && visible && !document.hidden && !opts.paused && !motionQuery.matches && width > 0 && height > 0 && (data.motion.speed || data.motion.deformation*(data.motion.driftSpeed ?? 0.65) || data.motion.pulse*(data.motion.pulseSpeed ?? 1.3) || (data.motion.breathing || 0)*(data.motion.breathSpeed ?? 0.6) || (data.motion.waveHeight || 0)*(data.motion.waveSpeed ?? 0.8));
   function setData(next) {
     if (!next || next.version !== 1 || !Array.isArray(next.points) || next.points.length % 3 || next.points.length > 3600 || !next.themes?.dark || !next.themes?.light) throw new Error('Unsupported Orbit sphere configuration.');
     if (next.points !== data?.points) {
@@ -47,11 +47,17 @@ export function createSphere(canvas, config, options = {}) {
     const ax=axis==='x'?angle:axis==='tumble'?angle*0.61:0, az=axis==='z'?angle:0;
     const ca=Math.cos(ay),sa=Math.sin(ay),cx=Math.cos(ax),sx=Math.sin(ax),cz=Math.cos(az),sz=Math.sin(az);
     const breathing=1+(motion.breathing || 0)*Math.sin(breath);
-    const tilt = -0.17, ct = Math.cos(tilt), st = Math.sin(tilt), scale = Math.min(width,height)*0.365;
+    // Fit the largest possible deformation, keeping breathing/waves clear of the edges.
+    const bound=(1+motion.deformation*0.23)*(1+(motion.waveHeight || 0))*(1+(motion.breathing || 0));
+    const fit=Math.min(0.365,0.43*Math.sqrt(3.8*3.8-bound*bound)/(3.8*bound));
+    const tilt = -0.17, ct = Math.cos(tilt), st = Math.sin(tilt), scale = Math.min(width,height)*fit;
+    const frequency=(motion.waveFrequency ?? 2.2)*Math.PI;
     for (let i = 0; i < count; i++) {
       const at=i*3, to=i*4;
-      const wave=(1+Math.sin(drift+xyz[at+1]*3+xyz[at]*2)*motion.deformation*0.23)*breathing;
-      const x=xyz[at]*wave, y=xyz[at+1]*wave, z=xyz[at+2]*wave;
+      const ripple=motion.waveHeight ? motion.waveHeight*(0.65*Math.sin((xyz[at+1]*0.88+xyz[at]*0.45)*frequency+surface)+0.35*Math.sin((xyz[at+2]*0.8-xyz[at]*0.35)*frequency-surface*0.7)) : 0;
+      const wave=(1+Math.sin(drift+xyz[at+1]*3+xyz[at]*2)*motion.deformation*0.23)*(1+ripple)*breathing;
+      let x=xyz[at]*wave, y=xyz[at+1]*wave, z=xyz[at+2]*wave;
+      if(motion.twist){const a=motion.twist*y,c=Math.cos(a),s=Math.sin(a),originalX=x;x=x*c+z*s;z=z*c-originalX*s;}
       const yx=x*ca+z*sa, yz=z*ca-x*sa, xy=y*cx-yz*sx, xz=y*sx+yz*cx;
       const rx=yx*cz-xy*sz, zy=yx*sz+xy*cz, ry=zy*ct-xz*st, depth=zy*st+xz*ct;
       const perspective=3.8/(3.8-depth);
@@ -90,6 +96,7 @@ export function createSphere(canvas, config, options = {}) {
         const dt=Math.min((now-last)/1000,0.05),m=data.motion;time+=dt;
         rotation+=dt*m.speed*0.3*(m.direction ?? 1);drift+=dt*(m.driftSpeed ?? 0.65);
         shimmer+=dt*(m.pulseSpeed ?? 1.3);breath+=dt*(m.breathSpeed ?? 0.6);
+        surface+=dt*(m.waveSpeed ?? 0.8);
       }
       last=now;
     } else last=0;
@@ -116,12 +123,13 @@ export function createSphere(canvas, config, options = {}) {
   document.addEventListener('visibilitychange',reconcile);
   motionQuery.addEventListener('change',reconcile);themeQuery.addEventListener('change',themeChanged);
   return {
-    getState() { return {time,rotation,drift,shimmer,breath}; },
+    getState() { return {time,rotation,drift,shimmer,breath,surface}; },
     seek(state) {
       if(typeof state==='number') {
         time=Math.max(0,state);const m=data.motion;rotation=time*m.speed*0.3*(m.direction ?? 1);
         drift=time*(m.driftSpeed ?? 0.65);shimmer=time*(m.pulseSpeed ?? 1.3);breath=time*(m.breathSpeed ?? 0.6);
-      } else ({time,rotation,drift,shimmer,breath}=state);
+        surface=time*(m.waveSpeed ?? 0.8);
+      } else ({time,rotation,drift,shimmer,breath,surface=0}=state);
       last=0;reconcile();
     },
     update(nextConfig,nextOptions={}) {

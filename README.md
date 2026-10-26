@@ -12,9 +12,11 @@ Open http://127.0.0.1:4173. No dependencies need to be installed to run the gene
 
 ## Features
 
-- Reference-inspired Constellation preset, Halo, and Solar drift.
+- Reference-inspired Constellation preset, Halo, Solar drift, and a GIF-inspired Waveform preset.
 - Surface, layered, or filled arrangements; deterministic seeds and precomputed connections.
-- Dot count, size, connections, opacity, depth fade, and four paired palettes.
+- Random, evenly spaced, latitude-ring, and spiral point patterns; dot size variation.
+- Dot count, size, connections, opacity, depth fade, four paired palettes, and single colors per theme.
+- Surface wave height, frequency, signed travel speed, and twist.
 - Rotation speed, X/Y/Z/tumble axis, direction, drift amount/speed, shimmer amount/speed, breathing amount/speed.
 - Light/dark/compare preview, pause, reduced motion, offscreen suspension.
 - React ZIP with TypeScript declarations and integration guide, editable design JSON, transparent PNG.
@@ -32,11 +34,12 @@ npm test
 npm run measure
 node scripts/react-preview.mjs
 node scripts/export-reference.mjs
+node scripts/export-reference.mjs waveform
 ```
 
 React, React DOM, jsdom, and esbuild are development/test dependencies only. The React preview is available at `/example/index.html` after generating it. Tests cover deterministic geometry, connection validity, import bounds, ZIP integrity, SSR, React Strict Mode, themes, reduced motion, offscreen/hidden suspension, cleanup, and motion coordinate validity.
 
-The default reference export measured 12,825 bytes gzipped for renderer + wrapper + prepared design (3,338 bytes for renderer + wrapper alone) at initial completion. This is source gzip, not a promise about an application's complete bundle. The export dialog recalculates for each design. Desktop preview drawing was around 0.5 ms per frame in the development browser; this excludes browser compositing/GPU completion. Actual phone hardware and multiple-instance performance still need device-specific profiling. 60 fps is a target, not a guarantee.
+The default reference export measured 13,136 bytes gzipped for renderer + wrapper + prepared design (3,613 bytes for renderer + wrapper alone) after adding Waveform. The 1,200-dot Waveform export measures 10,751 bytes gzipped, including both themes. This is source gzip, not a promise about an application's complete bundle. The export dialog recalculates for each design. Desktop preview drawing was around 0.5–1.1 ms per frame in the development browser; this excludes browser compositing/GPU completion. Actual phone hardware and multiple-instance performance still need device-specific profiling. 60 fps is a target, not a guarantee.
 
 ## Hosting
 

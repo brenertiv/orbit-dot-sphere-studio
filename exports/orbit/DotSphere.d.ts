@@ -7,7 +7,7 @@ export interface SphereConfig {
   sizes: number[];
   links: number[];
   appearance: { size: number; lineOpacity: number; depth: number };
-  motion: { speed: number; deformation: number; pulse: number; axis?: 'x' | 'y' | 'z' | 'tumble'; direction?: 1 | -1; driftSpeed?: number; pulseSpeed?: number; breathing?: number; breathSpeed?: number };
+  motion: { speed: number; deformation: number; pulse: number; axis?: 'x' | 'y' | 'z' | 'tumble'; direction?: 1 | -1; driftSpeed?: number; pulseSpeed?: number; breathing?: number; breathSpeed?: number; waveHeight?: number; waveFrequency?: number; waveSpeed?: number; twist?: number };
   themes: Record<'light' | 'dark', { colors: string[]; line: string }>;
 }
 export interface DotSphereProps {

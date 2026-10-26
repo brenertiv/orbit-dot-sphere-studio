@@ -21,8 +21,23 @@ test('all presets have valid, unique links and bounded coordinates',()=>{
   }
 });
 test('import rejects invalid or expensive settings',()=>{
-  for(const input of [null,{count:1e8},{count:NaN},{seed:-1},{connections:7},{speed:'0.4'},{palette:'bad'},{palette:'toString'},{axis:'diagonal'},{direction:0},{breathing:1},{distribution:'bad'}])assert.throws(()=>validateSettings(input));
+  for(const input of [null,{count:1e8},{count:NaN},{seed:-1},{connections:7},{speed:'0.4'},{palette:'bad'},{palette:'toString'},{axis:'diagonal'},{direction:0},{breathing:1},{distribution:'bad'},{pattern:'grid'},{waveHeight:1},{waveSpeed:Infinity},{waveFrequency:0},{twist:3},{colorMode:'invalid'},{darkColor:'red'},{lightColor:'#gggggg'}])assert.throws(()=>validateSettings(input));
   assert.equal(validateSettings({count:100}).count,100);
+});
+test('patterns retain exact counts, shell radius, and seeded reproducibility',()=>{
+  for(const pattern of ['random','even','rings','spiral'])for(const count of [100,123,560,1200]){
+    const settings={...presets.waveform,pattern,count};
+    const d=prepareDesign(settings);assert.equal(d.points.length,count*3);assert.deepEqual(d,prepareDesign(settings));
+    for(let i=0;i<count;i++){const r=Math.hypot(...d.points.slice(i*3,i*3+3));assert.ok(r>0.979&&r<1.001);}
+    assert.ok(d.sizes.every(s=>s===1));
+  }
+});
+test('single colors and new settings round-trip; older designs retain defaults',()=>{
+  const s=validateSettings(presets.waveform), restored=validateSettings(JSON.parse(JSON.stringify(s)));
+  assert.deepEqual(s,restored);const config=prepareDesign(restored);
+  assert.deepEqual(config.themes.dark.colors,Array(4).fill(s.darkColor));
+  assert.deepEqual(config.themes.light.colors,Array(4).fill(s.lightColor));
+  const old=validateSettings(presets.reference);assert.equal(old.pattern,'random');assert.equal(old.waveHeight,0);assert.equal(old.twist,0);assert.equal(old.colorMode,'palette');
 });
 test('download is a valid ZIP with intact Unicode content',async()=>{
   const dir=await mkdtemp(join(tmpdir(),'orbit-zip-')),file=join(dir,'test.zip');

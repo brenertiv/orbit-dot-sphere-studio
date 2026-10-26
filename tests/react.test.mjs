@@ -65,3 +65,24 @@ test('all new motion combinations produce finite drawing coordinates without cha
   }
   assert.ok(coords.length>0);assert.ok(coords.every(Number.isFinite));assert.equal(callbacks.size,0);dom.window.close();
 });
+
+test('waves animate independently, preserve phase on speed edits, and fit at maximum settings',()=>{
+  const dom=new JSDOM('<canvas></canvas>');globalThis.window=dom.window;globalThis.document=dom.window.document;
+  Object.defineProperty(document,'hidden',{value:false});
+  globalThis.matchMedia=()=>({matches:false,addEventListener(){},removeEventListener(){}});
+  const frames=new Map();let n=0;globalThis.requestAnimationFrame=fn=>{frames.set(++n,fn);return n;};globalThis.cancelAnimationFrame=id=>frames.delete(id);
+  globalThis.ResizeObserver=class{observe(){}disconnect(){}};globalThis.IntersectionObserver=ResizeObserver;
+  let dots=[];const context={setTransform(){},clearRect(){dots=[];},beginPath(){},moveTo(){},lineTo(){},stroke(){},arc(x,y,r){dots.push([x,y,r]);},fill(){}};
+  const canvas=document.querySelector('canvas');canvas.getContext=()=>context;canvas.getBoundingClientRect=()=>({width:390,height:390});
+  let config=prepareDesign({...presets.waveform,speed:0});const instance=createSphere(canvas,config,{theme:'light'});
+  const before=JSON.stringify(dots);function tick(t){const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(t));}
+  tick(1000);tick(1016);assert.ok(instance.getState().surface>0);assert.notEqual(JSON.stringify(dots),before);
+  const phase=instance.getState().surface;
+  config={...config,motion:{...config.motion,waveSpeed:-1.5}};instance.update(config);
+  assert.equal(instance.getState().surface,phase,'speed change must not reset wave phase');
+  tick(2000);tick(2016);assert.ok(instance.getState().surface<phase,'negative speed reverses travel');
+  config=prepareDesign({...presets.waveform,waveHeight:0.3,breathing:0.2,deformation:0.3,twist:2,size:4});instance.update(config);
+  for(const time of [0,1,3,10,30]){instance.seek(time);for(const [x,y,r] of dots){assert.ok([x,y,r].every(Number.isFinite));assert.ok(x-r>=0&&x+r<=390&&y-r>=0&&y+r<=390,'deformed points remain inside the canvas');}}
+  const mirrored=createSphere(canvas,config,{theme:'dark',paused:true});mirrored.seek(instance.getState());assert.deepEqual(mirrored.getState(),instance.getState());mirrored.destroy();
+  instance.destroy();assert.equal(frames.size,0);dom.window.close();
+});
