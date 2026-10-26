@@ -1,0 +1,10 @@
+import { mkdir,readFile,writeFile } from 'node:fs/promises';
+import { prepareDesign,presets } from '../dist/geometry.js';
+import { configSource,createZip,guide } from '../dist/export.js';
+const files={};
+for(const name of ['DotSphere.js','DotSphere.d.ts','sphere.js'])files[name]=await readFile('dist/runtime/'+name,'utf8');
+files['sphere-config.js']=configSource(prepareDesign(presets.reference));files['README.md']=guide;
+await mkdir('exports/orbit',{recursive:true});
+for(const [name,content] of Object.entries(files))await writeFile('exports/orbit/'+name,content);
+await writeFile('exports/orbit-react.zip',new Uint8Array(await createZip(files).arrayBuffer()));
+console.log('Reference React export: exports/orbit-react.zip');
