@@ -16,12 +16,18 @@ Open http://127.0.0.1:4173. No dependencies need to be installed to run the gene
 - Sphere, Ellipsoid, and Torus shapes; outer radius, ellipsoid width/height/depth ratios, torus tube thickness/depth.
 - Surface, layered, or filled arrangements; deterministic seeds and precomputed connections.
 - Random, evenly spaced, surface-ring, and spiral point patterns; dot size variation.
-- Dot count, size, connections, opacity, depth fade, four paired palettes, and single colors per theme.
+- Dot count, size, connections, opacity, depth fade, eight paired palettes, and single colors per theme.
 - Surface wave height, frequency, signed travel speed, and twist.
 - Rotation speed, X/Y/Z/tumble axis, direction, drift amount/speed, shimmer amount/speed, breathing amount/speed.
 - Light/dark/compare preview, pause, reduced motion, offscreen suspension.
 - React ZIP with TypeScript declarations and integration guide, editable design JSON, transparent PNG.
 - Gzip size estimate includes runtime, React wrapper, and complete prepared design, excluding React itself.
+
+## Reference colors
+
+The studio uses the supplied Slate, Navy, Brand, and Green reference: cool slate surfaces, navy text/dark surfaces, blue controls, and green status indicators. CSS primitives feed semantic roles in both editor themes. Canvas preview backgrounds use the same reference neutrals; React canvases remain transparent.
+
+Brand, Navy, Slate, and Green dot palettes are available alongside the four original palettes. Each contains paired light/dark colors and saves with named presets and design JSON. Slate uses navy tones on light backgrounds so the dots remain visible. Green values were sampled directly from the supplied swatches. The exported configuration contains only the selected palette, with no additional runtime code.
 
 ## Custom presets
 

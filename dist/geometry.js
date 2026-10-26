@@ -1,5 +1,9 @@
 // Editor-only geometry preparation. This file is never included in React exports.
 export const palettes = {
+  brand: { name:'Brand', dark:['#2ea6e1','#74c4eb','#96d3f0','#51b5e6'], light:['#1c6487','#2585b4','#12425a','#2ea6e1'] },
+  navy: { name:'Navy', dark:['#88beec','#72abdb','#6ca2cf','#4f7da3'], light:['#365670','#294a5f','#1b3e4f','#426a8a'] },
+  slate: { name:'Slate', dark:['#c3cfdd','#dce3ec','#edf1f5','#ffffff'], light:['#365670','#426a8a','#294a5f','#4f7da3'] },
+  green: { name:'Green', dark:['#00e5a0','#84f4c1','#1bc28c','#bcfedc'], light:['#0a8864','#086d51','#00533e','#0fa477'] },
   aurora: { name: 'Aurora', dark: ['#647ce3','#5bd4eb','#8970d3','#a9e784'], light: ['#3d53ac','#007e97','#7950a9','#4a812c'] },
   glacier: { name: 'Glacier', dark: ['#74a1ff','#8cdbef','#b5d6ff','#67b7d2'], light: ['#315caa','#087e99','#546d9d','#27738b'] },
   ember: { name: 'Ember', dark: ['#ee9973','#f4cc98','#d98292','#eab84f'], light: ['#a64924','#9b6b16','#a73d60','#90711a'] },
