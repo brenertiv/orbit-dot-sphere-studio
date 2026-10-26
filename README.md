@@ -22,6 +22,12 @@ Open http://127.0.0.1:4173. No dependencies need to be installed to run the gene
 - React ZIP with TypeScript declarations and integration guide, editable design JSON, transparent PNG.
 - Gzip size estimate includes runtime, React wrapper, and complete prepared design, excluding React itself.
 
+## Custom presets
+
+My presets stores up to 50 named snapshots in this browser’s local storage. Save as new captures the complete settings, seed, motion, and both themes. Update explicitly replaces the selected saved snapshot; Rename changes only its name. Remove moves a snapshot into a recoverable local archive; Undo last removal restores it, including after a reload. Edits are kept as separate per-design drafts when switching, and Reset restores the selected snapshot.
+
+Presets and drafts do not sync across devices or origins. Clearing site data removes them. Duplicate names are rejected case-insensitively. Storage failures are shown without reporting a successful save, and unreadable libraries are preserved. The library module and UI are editor-only and do not change the React export.
+
 ## Source boundaries
 
 `dist/geometry.js` generates geometry in the editor. `dist/runtime/sphere.js` only plays prepared designs. `dist/runtime/DotSphere.js` mounts and updates the renderer without per-frame React state. Both the editor and exported React component use the exact same renderer. `dist/export.js` builds the downloadable ZIP and does not ship as a runtime dependency.
