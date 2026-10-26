@@ -26,7 +26,9 @@ paused={true} freezes animation at its current position. Reduced motion automati
 
 The generator exports rotation speed, axis (X, Y, Z, or tumble), forward/reverse direction, drift amount and speed, shimmer amount and speed, and breathing amount and speed. Drift deforms the sphere locally; breathing expands and contracts it uniformly. Each effect advances independently, so changing its speed preserves its cycle position. Changing the rotation axis changes the orientation model immediately.
 
-Point patterns (random, evenly spaced, latitude rings, spiral rows) and size variation are prepared in the editor and stored as coordinates and sizes. The component does not ship a pattern generator. Surface waves add height, frequency, and signed travel speed; zero speed freezes the folds, while zero height disables them. Twist bends the shape around its vertical axis. All wave and twist fields are optional for older exports. Single-color mode stores a separate color for each theme in the same palette format, with no additional runtime dependency.
+Sphere, Ellipsoid, and Torus geometry, including radius and proportions, is baked into sphere-config.js. No shape generator or new dependency ships with the component. Re-export from Orbit to change proportions.
+
+Point patterns (random, evenly spaced, surface rings, spiral rows) and size variation are prepared in the editor and stored as coordinates and sizes. The component does not ship a pattern generator. Surface waves add height, frequency, and signed travel speed; zero speed freezes the folds, while zero height disables them. Twist bends the shape around its vertical axis. All wave and twist fields are optional for older exports. Single-color mode stores a separate color for each theme in the same palette format, with no additional runtime dependency.
 
 ## Integration
 
@@ -51,7 +53,7 @@ Browsers must support Canvas 2D, ResizeObserver, IntersectionObserver, and Media
 
 ## Edit again
 
-Use Save design in Orbit to retain the editable JSON, then Import design to continue editing. The React configuration is generated output; the editable design file is separate.
+Use My presets in Orbit to save and name designs in this browser. Shapes and proportions are included. Use Save design / Import design to transfer editable JSON between browsers. The React configuration is generated output; the editable design file is separate.
 `;
 let sources;
 export async function runtimeSources() {

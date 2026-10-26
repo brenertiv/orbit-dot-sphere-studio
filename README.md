@@ -1,6 +1,6 @@
 # Orbit — Dot Sphere Studio
 
-A browser-local generator for decorative animated dot spheres. The editor is buildless HTML/CSS/JavaScript. Exports are dependency-free Canvas 2D plus a thin React wrapper; React is supplied by the consuming application.
+A browser-local generator for decorative animated dot shapes. The editor is buildless HTML/CSS/JavaScript. Exports are dependency-free Canvas 2D plus a thin React wrapper; React is supplied by the consuming application.
 
 ## Run
 
@@ -13,8 +13,9 @@ Open http://127.0.0.1:4173. No dependencies need to be installed to run the gene
 ## Features
 
 - Reference-inspired Constellation preset, Halo, Solar drift, and a GIF-inspired Waveform preset.
+- Sphere, Ellipsoid, and Torus shapes; outer radius, ellipsoid width/height/depth ratios, torus tube thickness/depth.
 - Surface, layered, or filled arrangements; deterministic seeds and precomputed connections.
-- Random, evenly spaced, latitude-ring, and spiral point patterns; dot size variation.
+- Random, evenly spaced, surface-ring, and spiral point patterns; dot size variation.
 - Dot count, size, connections, opacity, depth fade, four paired palettes, and single colors per theme.
 - Surface wave height, frequency, signed travel speed, and twist.
 - Rotation speed, X/Y/Z/tumble axis, direction, drift amount/speed, shimmer amount/speed, breathing amount/speed.
@@ -24,9 +25,15 @@ Open http://127.0.0.1:4173. No dependencies need to be installed to run the gene
 
 ## Custom presets
 
-My presets stores up to 50 named snapshots in this browser’s local storage. Save as new captures the complete settings, seed, motion, and both themes. Update explicitly replaces the selected saved snapshot; Rename changes only its name. Remove moves a snapshot into a recoverable local archive; Undo last removal restores it, including after a reload. Edits are kept as separate per-design drafts when switching, and Reset restores the selected snapshot.
+My presets stores up to 50 named snapshots in this browser’s local storage. Save as new captures the complete settings, shape proportions, seed, motion, and both themes. Update explicitly replaces the selected saved snapshot; Rename changes only its name. Remove moves a snapshot into a recoverable local archive; Undo last removal restores it, including after a reload. Edits are kept as separate per-design drafts when switching, and Reset restores the selected snapshot.
 
 Presets and drafts do not sync across devices or origins. Clearing site data removes them. Duplicate names are rejected case-insensitively. Storage failures are shown without reporting a successful save, and unreadable libraries are preserved. The library module and UI are editor-only and do not change the React export.
+
+## Shapes
+
+Outer radius scales every shape. Ellipsoid width, height, and depth are relative proportions; the longest axis is fitted to the chosen outer radius. Torus thickness is the tube radius divided by the ring centerline radius (10–70%); increasing it closes the hole while preserving the outer radius. Tube depth flattens the ring along Z. Filled and layered arrangements fill the tube, preserving the hole. All four point patterns work with every shape.
+
+Shape settings live only in the editor, custom presets, drafts, and editable design JSON. The generator bakes the selected geometry and connections into the existing export format. No shape code or dependencies are added to the runtime. Existing designs without shape fields remain spheres with identical exported coordinates. Motion operates on the prepared points: waves displace radially from the object center, and twist is around Y.
 
 ## Source boundaries
 
@@ -39,6 +46,7 @@ npm ci
 npm test
 npm run measure
 node scripts/react-preview.mjs
+node scripts/react-preview.mjs waveform torus
 node scripts/export-reference.mjs
 node scripts/export-reference.mjs waveform
 ```

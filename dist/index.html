@@ -15,13 +15,26 @@
     <div class="header-actions"><span class="local-note"><i></i> All yours. All local.</span><button class="icon-button" id="app-theme" aria-label="Switch editor to dark mode" title="Switch editor theme">◐</button><button class="button primary" id="export-top"><span aria-hidden="true">↗</span> Export React</button></div>
   </header>
   <main>
-    <div class="intro"><div><div class="eyebrow">A LITTLE ATMOSPHERE, ZERO EXTRA WEIGHT</div><h1>Make space for motion<span>.</span></h1><p>Shape your sphere. Find its rhythm. Make it yours.</p></div><div class="intro-detail"><span class="small-orbit" aria-hidden="true">✳</span><span>Designed to move.<br>Built to stay light.</span></div></div>
+    <div class="intro"><div><div class="eyebrow">A LITTLE ATMOSPHERE, ZERO EXTRA WEIGHT</div><h1>Make space for motion<span>.</span></h1><p>Shape your atmosphere. Find its rhythm. Make it yours.</p></div><div class="intro-detail"><span class="small-orbit" aria-hidden="true">✳</span><span>Designed to move.<br>Built to stay light.</span></div></div>
     <div class="workspace">
-      <aside class="controls" aria-label="Sphere design controls">
+      <aside class="controls" aria-label="Object design controls">
         <div class="panel-title"><h2>Design</h2><button class="text-button" id="reset">Reset <span aria-hidden="true">↺</span></button></div>
         <div class="control-section"><div class="section-title"><span>01</span><h3>Structure</h3></div>
-          <label class="select-label" for="distribution">Arrangement</label><select id="distribution"><option value="layered">Layered constellation</option><option value="shell">Surface shell</option><option value="cloud">Filled volume</option></select>
-          <label class="select-label spaced-label" for="pattern">Point pattern</label><select id="pattern"><option value="random">Random scatter</option><option value="even">Evenly spaced</option><option value="rings">Latitude rings</option><option value="spiral">Spiral rows</option></select>
+          <label class="select-label" for="shape">Shape</label><select id="shape"><option value="sphere">Sphere</option><option value="ellipsoid">Ellipsoid</option><option value="torus">Torus</option></select>
+          <label class="range-label" for="shapeRadius">Outer radius <output id="shapeRadius-value">100%</output></label><input type="range" id="shapeRadius" min="0.4" max="1" step="0.01">
+          <div id="ellipsoid-controls" hidden>
+            <label class="range-label" for="shapeWidth">Width · X <output id="shapeWidth-value">1.00×</output></label><input type="range" id="shapeWidth" min="0.25" max="1.5" step="0.05">
+            <label class="range-label" for="shapeHeight">Height · Y <output id="shapeHeight-value">0.70×</output></label><input type="range" id="shapeHeight" min="0.25" max="1.5" step="0.05">
+            <label class="range-label" for="shapeDepth">Depth · Z <output id="shapeDepth-value">0.70×</output></label><input type="range" id="shapeDepth" min="0.25" max="1.5" step="0.05">
+            <p class="control-hint">Relative proportions. The longest axis fits the outer radius.</p>
+          </div>
+          <div id="torus-controls" hidden>
+            <label class="range-label" for="tubeThickness">Tube thickness <output id="tubeThickness-value">35%</output></label><input type="range" id="tubeThickness" min="0.1" max="0.7" step="0.01">
+            <label class="range-label" for="tubeDepth">Tube depth <output id="tubeDepth-value">100%</output></label><input type="range" id="tubeDepth" min="0.25" max="1" step="0.05">
+            <p class="control-hint">A thicker tube makes a smaller hole. Lower depth flattens the ring.</p>
+          </div>
+          <label class="select-label spaced-label" for="distribution">Arrangement</label><select id="distribution"><option value="layered">Layered constellation</option><option value="shell">Surface shell</option><option value="cloud">Filled volume</option></select>
+          <label class="select-label spaced-label" for="pattern">Point pattern</label><select id="pattern"><option value="random">Random scatter</option><option value="even">Evenly spaced</option><option value="rings">Surface rings</option><option value="spiral">Spiral rows</option></select>
           <label class="range-label" for="count">Dots <output id="count-value">560</output></label><input type="range" id="count" min="100" max="1200" step="20">
           <label class="range-label" for="size">Dot size <output id="size-value">2.3</output></label><input type="range" id="size" min="0.7" max="4" step="0.1">
           <label class="range-label" for="sizeVariation">Size variation <output id="sizeVariation-value">100%</output></label><input type="range" id="sizeVariation" min="0" max="1" step="0.05">
@@ -39,7 +52,7 @@
             <label class="range-label" for="pulseSpeed">Shimmer speed <output id="pulseSpeed-value">1.30</output></label><input type="range" id="pulseSpeed" min="0" max="4" step="0.1">
             <label class="range-label" for="breathing">Breathing <output id="breathing-value">0%</output></label><input type="range" id="breathing" min="0" max="0.2" step="0.01">
             <label class="range-label" for="breathSpeed">Breathing speed <output id="breathSpeed-value">0.60</output></label><input type="range" id="breathSpeed" min="0" max="2" step="0.05">
-            <p class="control-hint">Breathing gently expands the whole sphere.<br>Set an effect’s amount to zero to turn it off.</p>
+            <p class="control-hint">Breathing gently expands the whole shape.<br>Set an effect’s amount to zero to turn it off.</p>
           </div></details>
           <details class="advanced-motion" id="wave-controls"><summary>Surface waves & twist <span aria-hidden="true">+</span></summary><div class="advanced-content">
             <label class="range-label" for="waveHeight">Wave height <output id="waveHeight-value">0%</output></label><input type="range" id="waveHeight" min="0" max="0.3" step="0.01">
@@ -58,7 +71,7 @@
         </div>
         <div class="seed-row"><label for="seed">Seed</label><input type="number" id="seed" min="0" max="4294967295" step="1"><button class="icon-button" id="randomize" title="Generate a new arrangement" aria-label="Randomize seed">⚄</button></div>
       </aside>
-      <section class="preview-column" aria-label="Sphere preview">
+      <section class="preview-column" aria-label="Object preview">
         <div class="preview-toolbar"><div class="preview-title"><i></i><span>Live preview</span></div><div class="segmented" role="group" aria-label="Preview appearance"><button data-view="dark" aria-pressed="true">Dark</button><button data-view="light" aria-pressed="false">Light</button><button data-view="compare" aria-pressed="false">Compare</button></div></div>
         <div class="stage" id="stage" data-view="dark">
           <div class="stage-pane dark-pane"><span class="stage-label">DARK APPEARANCE</span><canvas id="dark-canvas" aria-hidden="true"></canvas></div>
@@ -80,12 +93,12 @@
         </section>
       </section>
     </div>
-    <section class="export-strip"><div class="export-symbol" aria-hidden="true">&lt;/&gt;</div><div><h2>Big atmosphere. Tiny footprint.</h2><p>Your sphere, ready for React. Both themes included.</p></div><div class="export-size"><strong id="size-estimate">Measuring…</strong><span id="size-description">compressed runtime + design</span></div><button class="button secondary" id="export-bottom">Get the component <span aria-hidden="true">↗</span></button></section>
+    <section class="export-strip"><div class="export-symbol" aria-hidden="true">&lt;/&gt;</div><div><h2>Big atmosphere. Tiny footprint.</h2><p>Your design, ready for React. Both themes included.</p></div><div class="export-size"><strong id="size-estimate">Measuring…</strong><span id="size-description">compressed runtime + design</span></div><button class="button secondary" id="export-bottom">Get the component <span aria-hidden="true">↗</span></button></section>
     <footer><span>ORBIT <span class="footer-dot">·</span> A small tool for a little wonder.</span><div><button class="text-button" id="import">Import design</button><button class="text-button" id="save-design">Save design</button><button class="text-button" id="snapshot">Save PNG</button></div></footer>
   </main>
   <input type="file" id="import-file" accept="application/json,.json" hidden>
   <dialog id="preset-dialog" aria-labelledby="preset-dialog-heading"><form id="preset-form"><div class="dialog-top"><span class="eyebrow">YOUR COLLECTION</span><button type="button" class="icon-button" id="close-preset" aria-label="Close preset dialog">×</button></div><h2 id="preset-dialog-heading">Save this moment.</h2><p class="dialog-description" id="preset-dialog-description">Keep the current design, motion, and both color themes as a named preset.</p><label class="select-label" for="preset-name">Preset name</label><input id="preset-name" name="name" maxlength="60" required autocomplete="off" placeholder="e.g. Midnight ripple" aria-describedby="preset-error"><p id="preset-error" class="form-error" role="alert" hidden></p><div class="preset-dialog-actions"><button type="button" class="button secondary" id="cancel-preset">Cancel</button><button type="submit" class="button primary" id="confirm-preset">Save preset</button></div></form></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <dialog id="export-dialog" aria-labelledby="export-heading"><div class="dialog-top"><span class="eyebrow">READY TO GO</span><button class="icon-button" id="close-export" aria-label="Close export">×</button></div><h2 id="export-heading">A little orbit, anywhere.</h2><p class="dialog-description">Drop these files into your React app. No extra packages, no editor code.</p><div class="export-facts"><span><i></i> Light + dark</span><span>Transparent canvas</span><span>React 18+</span></div><div class="file-list"><div><span>DotSphere.js <small>+ types</small></span><span>React wrapper</span></div><div><span>sphere.js</span><span>Canvas runtime</span></div><div><span>sphere-config.js</span><span>Your prepared design</span></div><div><span>README.md</span><span>Integration guide</span></div></div><div class="code-heading"><span>USE IT IN YOUR APP</span><button class="text-button" id="copy-code">Copy code</button></div><pre><code id="usage-code"></code></pre><p class="export-footnote" id="export-detail"></p><button class="button primary download" id="download">↓ Download React component <span>.zip</span></button><p class="dialog-bottom">The generator stays here. Only your sphere ships.</p></dialog>
+  <dialog id="export-dialog" aria-labelledby="export-heading"><div class="dialog-top"><span class="eyebrow">READY TO GO</span><button class="icon-button" id="close-export" aria-label="Close export">×</button></div><h2 id="export-heading">A little orbit, anywhere.</h2><p class="dialog-description">Drop these files into your React app. No extra packages, no editor code.</p><div class="export-facts"><span><i></i> Light + dark</span><span>Transparent canvas</span><span>React 18+</span></div><div class="file-list"><div><span>DotSphere.js <small>+ types</small></span><span>React wrapper</span></div><div><span>sphere.js</span><span>Canvas runtime</span></div><div><span>sphere-config.js</span><span>Your prepared design</span></div><div><span>README.md</span><span>Integration guide</span></div></div><div class="code-heading"><span>USE IT IN YOUR APP</span><button class="text-button" id="copy-code">Copy code</button></div><pre><code id="usage-code"></code></pre><p class="export-footnote" id="export-detail"></p><button class="button primary download" id="download">↓ Download React component <span>.zip</span></button><p class="dialog-bottom">The generator stays here. Only your design ships.</p></dialog>
 </body>
 </html>

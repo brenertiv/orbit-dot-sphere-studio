@@ -12,6 +12,8 @@ export const presets = {
   waveform: { name:'Waveform', subtitle:'Flowing folds, inspired by your GIF', count:1200, size:1.7, connections:0, lineOpacity:0.12, speed:0.32, deformation:0, pulse:0, depth:0.24, seed:2408, palette:'mono', distribution:'shell', pattern:'rings', sizeVariation:0, colorMode:'single', darkColor:'#f5f7f7', lightColor:'#28343a', waveHeight:0.14, waveFrequency:1.5, waveSpeed:0.8, twist:1.2, axis:'tumble' }
 };
 export const motionDefaults = { axis:'y', direction:1, driftSpeed:0.65, pulseSpeed:1.3, breathing:0, breathSpeed:0.6, waveHeight:0, waveFrequency:2.2, waveSpeed:0.8, twist:0 };
+export const shapes = { sphere:'Sphere', ellipsoid:'Ellipsoid', torus:'Torus' };
+const shapeDefaults = { shape:'sphere', shapeRadius:1, shapeWidth:1, shapeHeight:0.7, shapeDepth:0.7, tubeThickness:0.35, tubeDepth:1 };
 const designDefaults = { pattern:'random', sizeVariation:1, colorMode:'palette', darkColor:'#f5f7f7', lightColor:'#28343a' };
 export function themesFromSettings(s) {
   return {dark:{colors:s.colorMode==='single'?Array(4).fill(s.darkColor):[...palettes[s.palette].dark],line:'#8b9eab'},light:{colors:s.colorMode==='single'?Array(4).fill(s.lightColor):[...palettes[s.palette].light],line:'#4d6574'}};
@@ -32,13 +34,38 @@ function ringDirections(count, offset) {
   for(let i=0,left=count-counts.reduce((a,b)=>a+b,0);i<left;i++)counts[remainder[i].i]++;
   return counts.flatMap((n,row)=>Array.from({length:n},(_,i)=>[Math.cos(Math.PI*(row+0.5)/rows),offset+2*Math.PI*i/n]));
 }
+// Invert the torus surface-area CDF, avoiding a dense inner seam.
+function tubeAngle(fraction, ratio) {
+  const target=fraction*Math.PI*2;
+  let angle=target;
+  for(let j=0;j<7;j++)angle-=(angle+ratio*Math.sin(angle)-target)/(1+ratio*Math.cos(angle));
+  return angle;
+}
+function torusDirections(count, ratio, offset) {
+  const rows=Math.max(4,Math.round(Math.sqrt(count*ratio)));
+  const angles=Array.from({length:rows},(_,i)=>2*Math.PI*(i+0.5)/rows);
+  const weights=angles.map(a=>1+ratio*Math.cos(a)),total=weights.reduce((a,b)=>a+b,0);
+  const counts=weights.map(w=>Math.floor(count*w/total));
+  const remainder=weights.map((w,i)=>({i,f:count*w/total-counts[i]})).sort((a,b)=>b.f-a.f);
+  for(let i=0,left=count-counts.reduce((a,b)=>a+b,0);i<left;i++)counts[remainder[i].i]++;
+  return counts.flatMap((n,row)=>Array.from({length:n},(_,i)=>[angles[row],offset+2*Math.PI*i/n]));
+}
 export function prepareDesign(settings) {
   const s = validateSettings(settings), rng = random(s.seed), points = [], colors = [], sizes = [];
-  const offset=random(s.seed)()*Math.PI*2,rings=s.pattern==='rings'?ringDirections(s.count,offset):null;
+  const offset=random(s.seed)()*Math.PI*2,rings=s.pattern==='rings'?(s.shape==='torus'?torusDirections(s.count,s.tubeThickness,offset):ringDirections(s.count,offset)):null;
   for (let i = 0; i < s.count; i++) {
     const strand = s.pattern==='random' && s.distribution === 'layered' && i > s.count * 0.85;
     let x, y, z;
-    if (strand) {
+    if (s.shape === 'torus') {
+      const major=1/(1+s.tubeThickness),minor=s.tubeThickness*major;
+      const fill=s.distribution==='shell'?1:s.distribution==='cloud'?Math.sqrt(rng()):rng()>0.36?0.87+rng()*0.13:0.18+Math.sqrt(rng())*0.62;
+      const tube=minor*fill;
+      const v=rings?rings[i][0]:tubeAngle(s.pattern==='random'?rng():(i+0.5)/s.count,tube/major);
+      const u=rings?rings[i][1]:s.pattern==='random'?rng()*Math.PI*2:offset+(s.pattern==='even'?i*Math.PI*(3-Math.sqrt(5)):i/s.count*Math.PI*2*Math.sqrt(s.count)*0.65);
+      x=(major+tube*Math.cos(v))*Math.cos(u);
+      y=(major+tube*Math.cos(v))*Math.sin(u);
+      z=tube*Math.sin(v)*s.tubeDepth;
+    } else if (strand) {
       const t = (i - s.count * 0.85) / (s.count * 0.15), a = t * Math.PI * 7;
       x = Math.cos(a) * (0.22 + t * 0.18); y = (t - 0.5) * 1.35; z = Math.sin(a) * 0.38;
     } else {
@@ -47,6 +74,11 @@ export function prepareDesign(settings) {
       const r = s.distribution === 'shell' ? s.pattern==='random'?0.98+rng()*0.02:1 : s.distribution === 'cloud' ? Math.cbrt(rng()) : rng() > 0.36 ? 0.87 + rng() * 0.13 : 0.18 + Math.cbrt(rng()) * 0.62;
       const h = Math.sqrt(1 - v*v); x = Math.cos(a)*h*r; y = v*r; z = Math.sin(a)*h*r;
     }
+    if(s.shape==='ellipsoid') {
+      const fit=Math.max(s.shapeWidth,s.shapeHeight,s.shapeDepth);
+      x*=s.shapeWidth/fit;y*=s.shapeHeight/fit;z*=s.shapeDepth/fit;
+    }
+    x*=s.shapeRadius;y*=s.shapeRadius;z*=s.shapeRadius;
     points.push(round(x), round(y), round(z));
     const r = Math.hypot(x,y,z);
     colors.push(r > 0.82 ? (rng() > 0.86 ? 2 : 0) : rng() > 0.82 ? 3 : 1);
@@ -66,7 +98,7 @@ export function prepareDesign(settings) {
       if (!seen.has(key)) { seen.add(key); links.push(a,b); }
     }
     // A handful of longer chords gives the reference preset its airy network.
-    if (s.distribution === 'layered' && i % 9 === 0) {
+    if (s.shape !== 'torus' && s.distribution === 'layered' && i % 9 === 0) {
       const j = Math.floor(rng()*s.count), a = Math.min(i,j), b = Math.max(i,j), key = a+':'+b;
       if (a !== b && !seen.has(key)) { seen.add(key); links.push(a,b); }
     }
@@ -75,8 +107,8 @@ export function prepareDesign(settings) {
 }
 export function validateSettings(input) {
   if (!input || typeof input !== 'object') throw new Error('Expected an Orbit design object.');
-  const s = { ...presets.reference, ...motionDefaults, ...designDefaults };
-  const ranges = {count:[100,1200],size:[0.7,4],connections:[0,3],lineOpacity:[0,0.45],speed:[0,0.8],deformation:[0,0.3],pulse:[0,0.5],depth:[0,1],seed:[0,4294967295],driftSpeed:[0,2],pulseSpeed:[0,4],breathing:[0,0.2],breathSpeed:[0,2],sizeVariation:[0,1],waveHeight:[0,0.3],waveFrequency:[0.5,6],waveSpeed:[-2,2],twist:[-2,2]};
+  const s = { ...presets.reference, ...motionDefaults, ...designDefaults, ...shapeDefaults };
+  const ranges = {shapeRadius:[0.4,1],shapeWidth:[0.25,1.5],shapeHeight:[0.25,1.5],shapeDepth:[0.25,1.5],tubeThickness:[0.1,0.7],tubeDepth:[0.25,1],count:[100,1200],size:[0.7,4],connections:[0,3],lineOpacity:[0,0.45],speed:[0,0.8],deformation:[0,0.3],pulse:[0,0.5],depth:[0,1],seed:[0,4294967295],driftSpeed:[0,2],pulseSpeed:[0,4],breathing:[0,0.2],breathSpeed:[0,2],sizeVariation:[0,1],waveHeight:[0,0.3],waveFrequency:[0.5,6],waveSpeed:[-2,2],twist:[-2,2]};
   for (const [key,[min,max]] of Object.entries(ranges)) {
     if (input[key] !== undefined) {
       if (typeof input[key] !== 'number' || !Number.isFinite(input[key]) || input[key]<min || input[key]>max) throw new Error('Invalid '+key+' setting.');
@@ -87,7 +119,7 @@ export function validateSettings(input) {
   if (input.distribution !== undefined) { if (!['layered','shell','cloud'].includes(input.distribution)) throw new Error('Unknown distribution.'); s.distribution=input.distribution; }
   if (input.axis !== undefined) { if (!['x','y','z','tumble'].includes(input.axis)) throw new Error('Unknown rotation axis.'); s.axis=input.axis; }
   if (input.direction !== undefined) { if (![1,-1].includes(input.direction)) throw new Error('Invalid rotation direction.'); s.direction=input.direction; }
-  for(const [key,allowed] of Object.entries({pattern:['random','even','rings','spiral'],colorMode:['palette','single']})) {
+  for(const [key,allowed] of Object.entries({shape:Object.keys(shapes),pattern:['random','even','rings','spiral'],colorMode:['palette','single']})) {
     if(input[key]!==undefined){if(!allowed.includes(input[key]))throw new Error('Invalid '+key+'.');s[key]=input[key];}
   }
   for(const key of ['darkColor','lightColor'])if(input[key]!==undefined){if(typeof input[key]!=='string'||!/^#[0-9a-f]{6}$/i.test(input[key]))throw new Error('Invalid '+key+'.');s[key]=input[key];}
