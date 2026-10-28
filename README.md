@@ -1,14 +1,16 @@
 # Orbit — Dot Sphere Studio
 
-A browser-local generator for decorative animated dot shapes. The editor is buildless HTML/CSS/JavaScript. Exports are dependency-free Canvas 2D plus a thin React wrapper; React is supplied by the consuming application.
+A browser-local generator for decorative animated dot shapes. The editor uses React and MUI with the Kilowatt theme. Exports are dependency-free Canvas 2D plus a thin React wrapper; React is supplied by the consuming application.
 
 ## Run
 
 ```sh
+npm ci
+npm run build
 npm run dev
 ```
 
-Open http://127.0.0.1:4173. No dependencies need to be installed to run the generator. Editable designs are autosaved to browser storage where available; Save design / Import design transfers them between browsers or origins. All design processing and ZIP creation happen locally in the browser. The editor loads Google Fonts, with local font fallbacks; exported components make no font or asset requests.
+Open http://127.0.0.1:4173. The committed dist directory can also be served directly. Run the build after editing src/. Editable designs are autosaved to browser storage where available; Save design / Import design transfers them between browsers or origins. All design processing and ZIP creation happen locally in the browser. The editor loads Roboto and Material Symbols from Google Fonts, with local text font fallbacks; exported components make no font or asset requests.
 
 ## Features
 
@@ -23,9 +25,13 @@ Open http://127.0.0.1:4173. No dependencies need to be installed to run the gene
 - React ZIP with TypeScript declarations and integration guide, editable design JSON, transparent PNG.
 - Gzip size estimate includes runtime, React wrapper, and complete prepared design, excluding React itself.
 
-## Reference colors
+## Design system
 
-The studio uses the supplied Slate, Navy, Brand, and Green reference: cool slate surfaces, navy text/dark surfaces, blue controls, and green status indicators. CSS primitives feed semantic roles in both editor themes. Canvas preview backgrounds use the same reference neutrals; React canvases remain transparent.
+The editor uses [Kilowatt](https://kilowatt-ui.vercel.app/), including its unmodified MUI theme, regular-weight Roboto type scale, Material Symbols, semantic surface and border levels, and light/dark schemes. Upstream version and copied files are recorded in `src/mui/UPSTREAM.md`. App layout lives in `src/App.jsx`; presets, drafts, and editable JSON keep their existing storage keys and formats.
+
+The source theme is used by the generator only. Downloaded components contain no MUI, Emotion, fonts, icons, theme provider, or editor code. Preview backgrounds come from Kilowatt’s semantic palettes; exported canvases remain transparent.
+
+## Reference colors
 
 Brand, Navy, Slate, and Green dot palettes are available alongside the four original palettes. Each contains paired light/dark colors and saves with named presets and design JSON. Slate uses navy tones on light backgrounds so the dots remain visible. Green values were sampled directly from the supplied swatches. The exported configuration contains only the selected palette, with no additional runtime code.
 
@@ -43,6 +49,8 @@ Shape settings live only in the editor, custom presets, drafts, and editable des
 
 ## Source boundaries
 
+`src/App.jsx` is the MUI editor. `src/editor-state.js` preserves the legacy browser storage and design JSON contracts. `npm run build` bundles the editor into `dist/studio.js` while leaving generation, storage, and export modules separate.
+
 `dist/geometry.js` generates geometry in the editor. `dist/runtime/sphere.js` only plays prepared designs. `dist/runtime/DotSphere.js` mounts and updates the renderer without per-frame React state. Both the editor and exported React component use the exact same renderer. `dist/export.js` builds the downloadable ZIP and does not ship as a runtime dependency.
 
 ## Verification
@@ -57,7 +65,7 @@ node scripts/export-reference.mjs
 node scripts/export-reference.mjs waveform
 ```
 
-React, React DOM, jsdom, and esbuild are development/test dependencies only. The React preview is available at `/example/index.html` after generating it. Tests cover deterministic geometry, connection validity, import bounds, ZIP integrity, SSR, React Strict Mode, themes, reduced motion, offscreen/hidden suspension, cleanup, and motion coordinate validity.
+React, React DOM, MUI, and Emotion power the editor. jsdom and esbuild are development/test dependencies. None of MUI, Emotion, or the editor are included in the React export. The React preview is available at `/example/index.html` after generating it. Tests cover deterministic geometry, connection validity, import bounds, ZIP integrity, SSR, React Strict Mode, themes, reduced motion, offscreen/hidden suspension, cleanup, and motion coordinate validity.
 
 The default reference export measured 13,136 bytes gzipped for renderer + wrapper + prepared design (3,613 bytes for renderer + wrapper alone) after adding Waveform. The 1,200-dot Waveform export measures 10,751 bytes gzipped, including both themes. This is source gzip, not a promise about an application's complete bundle. The export dialog recalculates for each design. Desktop preview drawing was around 0.5–1.1 ms per frame in the development browser; this excludes browser compositing/GPU completion. Actual phone hardware and multiple-instance performance still need device-specific profiling. 60 fps is a target, not a guarantee.
 
