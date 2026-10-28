@@ -5,7 +5,7 @@ export default {
   field: { scale: 0.55, contrast: 1.6, toneSteps: 4, speed: 0.25 },
   color: {
     ramp: 'deep', accentRate: 0.06,
-    dark:  { tones: ['#1b3e4f', '#4f7da3', '#74c4eb', '#b9e1f5', '#dcf0fa'], grid: '#142f3c', accent: '#00e59a' },
-    light: { tones: ['#dce3ec', '#6ca2cf', '#2ea6e1', '#1c6487', '#294a5f'], grid: '#e2e8ef', accent: '#11896a' },
+    dark:  { tones: ['#1b3e4f', '#4f7da3', '#74c4eb', '#b9e1f5', '#dcf0fa'], grid: '#142f3c', accent: '#00e5a0' },
+    light: { tones: ['#b9e1f5', '#72abdb', '#2ea6e1', '#2585b4', '#1c6487'], grid: '#dce3ec', accent: '#0a8864' },
   },
 };
