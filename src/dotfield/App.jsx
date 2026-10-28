@@ -1,13 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Alert, AppBar, Box, Button, Card, CardContent, CardHeader, Checkbox, Container, FormControlLabel, GlobalStyles, IconButton, Link, MenuItem, Slider, Snackbar, Stack, Tab, Tabs, TextField, ToggleButton, ToggleButtonGroup, Toolbar, Tooltip, Typography, useMediaQuery } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Card, CardContent, CardHeader, Checkbox, Container, FormControlLabel, IconButton, Link, MenuItem, Slider, Snackbar, Stack, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { useColorScheme, useTheme } from '@mui/material/styles';
 import { Icon } from '../icons';
 import { fieldFrame, toneIndexes } from '../../exports/dotfield/dotfield.js';
 import { colorsFromTheme, compositions, defaults, fromConfig, parseConfig, ranges, toConfig, toSVG } from './config';
 
-const ORBIT_URL = 'https://brenertiv.github.io/orbit-dot-sphere-studio/';
-const DOTFIELD_URL = 'https://brenertiv.github.io/orbit-dot-sphere-studio/dotfield/';
-const ZIP_URL = DOTFIELD_URL + 'dotfield-react.zip';
+const ZIP_URL = 'https://brenertiv.github.io/orbit-dot-sphere-studio/dotfield/dotfield-react.zip';
 const two = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const whole = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
 function formatValue(id, v) { const r = ranges[id]; return r.unit === 'px' ? whole.format(v) + '\u00a0px' : r.integer ? whole.format(v) : two.format(v); }
@@ -109,10 +107,14 @@ function Section({ title, children, defaultExpanded = false }) {
   </Accordion>;
 }
 
-export function App() {
+/**
+ * Field, the dot field illustration editor. Rendered inside the Kilowatt Studio shell (src/Studio.jsx);
+ * `active` is false while another tool's tab is showing, which stills the preview and any video.
+ */
+export function FieldView({ active = true }) {
   const theme = useTheme();
   const colors = useMemo(() => colorsFromTheme(theme), [theme]);
-  const { mode, systemMode, setMode } = useColorScheme(), editorMode = (mode === 'system' ? systemMode : mode) || 'light';
+  const { mode, systemMode } = useColorScheme(), editorMode = (mode === 'system' ? systemMode : mode) || 'light';
   const reduced = useMediaQuery('(prefers-reduced-motion: reduce)');
   const [clock] = useState(() => createClock(window.matchMedia('(prefers-reduced-motion: reduce)').matches));
   const [state, setState] = useState(defaults);
@@ -137,8 +139,8 @@ export function App() {
   }, [media]);
   useEffect(() => {
     if (media?.kind !== 'video') return;
-    if (state.composition === 'source' && !reduced) media.el.play().catch(() => {}); else media.el.pause();
-  }, [media, state.composition, reduced]);
+    if (active && state.composition === 'source' && !reduced) media.el.play().catch(() => {}); else media.el.pause();
+  }, [media, state.composition, reduced, active]);
 
   const source = useMemo(() => {
     if (media?.kind === 'image') {
@@ -155,7 +157,6 @@ export function App() {
   const schemes = shown === 'compare' ? ['light', 'dark'] : [shown];
   const needsFile = state.composition === 'source' && !media && !baked;
 
-  function toggleTheme() { setMode(editorMode === 'light' ? 'dark' : 'light'); }
   function loadFile(file) {
     if (!file || !/^(image|video)\//.test(file.type)) { notify('Choose an image or a video file.', 'error'); return; }
     const url = URL.createObjectURL(file);
@@ -212,26 +213,7 @@ export function App() {
   const meta = `${name}${state.composition === 'source' ? ' · ' + (media?.name || source.file || 'no file yet') : ''} · seed ${state.seed}`;
 
   return <>
-    {/* Same phone tap targets as the Orbit editor; the upstream theme stays unchanged. */}
-    <GlobalStyles styles={t => ({
-      [t.breakpoints.down('sm')]: { '.MuiButton-root,.MuiIconButton-root,.MuiToggleButton-root,.MuiTab-root': { minHeight: 44 }, '.MuiIconButton-root': { minWidth: 44 } },
-      '@media (pointer: coarse)': { '.MuiButton-root,.MuiIconButton-root,.MuiToggleButton-root,.MuiTab-root': { minHeight: 44 }, '.MuiIconButton-root': { minWidth: 44 } },
-    })} />
-    <AppBar position="static" color="default" elevation={0} sx={{ bgcolor: 'background.level2', borderBottom: 1, borderColor: 'divider' }}>
-      <Toolbar sx={{ gap: 2, flexWrap: 'wrap' }}>
-        <Typography variant="h5" component="a" href={DOTFIELD_URL} sx={{ color: 'text.primary', textDecoration: 'none' }}>Dot Field</Typography>
-        <Tabs value="dotfield" aria-label="Studio tools" sx={{ alignSelf: 'flex-end' }}>
-          <Tab value="orbit" label="Orbit" component="a" href={ORBIT_URL} />
-          <Tab value="dotfield" label="Dot Field" component="a" href={DOTFIELD_URL} aria-current="page" />
-        </Tabs>
-        <Box sx={{ flex: 1 }} />
-        <Tooltip title={'Switch to ' + (editorMode === 'light' ? 'dark' : 'light') + ' mode'}>
-          <IconButton aria-label={'Switch to ' + (editorMode === 'light' ? 'dark' : 'light') + ' mode'} onClick={toggleTheme}><Icon name={editorMode === 'light' ? 'dark_mode' : 'light_mode'} /></IconButton>
-        </Tooltip>
-      </Toolbar>
-    </AppBar>
-
-    <Container maxWidth="xl" component="main" sx={{ py: 3 }}>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
       <Box sx={t => ({ display: 'grid', gridTemplateColumns: { xs: 'minmax(0,1fr)', md: t.spacing(44) + ' minmax(0,1fr)' }, gridTemplateAreas: { xs: '"preview" "controls"', md: '"controls preview"' }, gap: 3, alignItems: 'start' })}>
         <Card variant="outlined" component="section" aria-label="Illustration preview" sx={{ gridArea: 'preview', minWidth: 0, position: { md: 'sticky' }, top: 16 }}>
           <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
@@ -246,7 +228,7 @@ export function App() {
               return <Box key={scheme} sx={{ display: schemes.includes(scheme) ? 'flex' : 'none', flexDirection: 'column', flex: 1, minWidth: 0, bgcolor: p.background.level0, color: p.text.secondary }}>
                 {schemes.length > 1 && <Typography variant="caption" sx={{ px: 2, pt: 2 }}>{scheme === 'dark' ? 'Dark surface' : 'Light surface'}</Typography>}
                 <Box sx={{ flex: 1, minHeight: 0 }}>
-                  <FieldCanvas config={config} palette={colors[scheme]} luminance={luminance} clock={clock} paused={paused} onSize={s => { sizes.current[scheme] = s; }} />
+                  <FieldCanvas config={config} palette={colors[scheme]} luminance={luminance} clock={clock} paused={paused || !active} onSize={s => { sizes.current[scheme] = s; }} />
                 </Box>
               </Box>;
             })}

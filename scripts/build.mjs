@@ -11,11 +11,4 @@ const result=await build({
   }}]
 });
 await writeFile(join(tmpdir(),'orbit-build-meta.json'),JSON.stringify(result.metafile));
-console.log('Built Kilowatt editor → dist/studio.js. Runtime/export modules remain separate.');
-// Dot Field generator: same theme and Icon, its own bundle. Bundles the exported renderer so the preview draws what ships.
-await build({
-  entryPoints:['src/dotfield/main.jsx'],outfile:'dist/dotfield/dotfield.js',bundle:true,minify:true,
-  format:'esm',target:['es2022'],jsx:'automatic',
-  define:{'process.env.NODE_ENV':'"production"'},legalComments:'linked'
-});
-console.log('Built Dot Field → dist/dotfield/dotfield.js.');
+console.log('Built Kilowatt Studio (Orbit + Field) → dist/studio.js. Runtime/export modules remain separate.');
