@@ -61,6 +61,16 @@ React, React DOM, jsdom, and esbuild are development/test dependencies only. The
 
 The default reference export measured 13,136 bytes gzipped for renderer + wrapper + prepared design (3,613 bytes for renderer + wrapper alone) after adding Waveform. The 1,200-dot Waveform export measures 10,751 bytes gzipped, including both themes. This is source gzip, not a promise about an application's complete bundle. The export dialog recalculates for each design. Desktop preview drawing was around 0.5–1.1 ms per frame in the development browser; this excludes browser compositing/GPU completion. Actual phone hardware and multiple-instance performance still need device-specific profiling. 60 fps is a target, not a guarantee.
 
+## Dot Field
+
+A second generator lives at `dist/dotfield/` (served at `/dotfield/`): round dots on a fixed grid, sized and toned by a slow noise field or a supplied image/video, in the Navy→Brand or Brand-only ramp with a sparse decorative Green accent. It exports SVG stills and a config object.
+
+The React package is in `exports/dotfield/` (also downloadable from the page as `dotfield-react.zip`). Copy the `dotfield` folder into an app, paste a copied config as `export default { … }`, and render `<DotField config={…} theme="system" />`. See `exports/dotfield/README.md`.
+
+## GitHub Pages
+
+`.github/workflows/pages.yml` publishes `dist/` on every push to `main`. Enable it once under Settings → Pages → Build and deployment → Source: GitHub Actions. The studio is then at the site root and the Dot Field at `/dotfield/`.
+
 ## Hosting
 
 The Site serves `dist/`. `.openai/hosting.json` records the private Site identity. Development React fixtures are generated only for verification and removed before packaging. No backend or account integration is required by the generator.
