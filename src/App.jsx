@@ -70,7 +70,7 @@ function PresetCard({id,preset,active,onClick}) {
     <CardActionArea aria-label={preset.name+' preset'} aria-pressed={active} onClick={onClick}>
       <CardContent sx={{display:'flex',alignItems:'center',gap:2}}>
         <Box sx={t=>({width:t.spacing(8),height:t.spacing(8),flexShrink:0,borderRadius:1,overflow:'hidden',bgcolor:theme.colorSchemes.dark.palette.background.level0})}><Canvas design={thumbnails[id]} theme="dark" paused /></Box>
-        <Box sx={{minWidth:0,flex:1}}><Typography variant="body1">{preset.name}</Typography><Typography variant="caption" color="text.secondary">{preset.subtitle}</Typography></Box>
+        <Box sx={{minWidth:0,flex:1}}><Typography variant="body1">{preset.name}</Typography></Box>
         {active&&<Icon name="check" color="secondary"/>}
       </CardContent>
     </CardActionArea>
