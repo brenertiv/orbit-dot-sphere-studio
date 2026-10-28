@@ -21,7 +21,7 @@ Compositions: `tide`, `band`, `cluster`, `coverage`, and `source` (a baked image
 
 The canvas is transparent, `aria-hidden`, and ignores pointer events: supply a background on the parent. It defaults to a 4:3 box that fills its container's width; pass `style={{ aspectRatio: 'auto', height: 320 }}` for a fixed-height band. Don't set the canvas `width`/`height` attributes; the renderer manages its backing store (DPR capped at 1.75).
 
-`theme="system"` follows `prefers-color-scheme`. If your app has its own toggle, pass its resolved `"light"` or `"dark"`. Theme changes crossfade the palette without resetting motion. Both palettes live in the config.
+`theme="system"` follows `prefers-color-scheme`. If your app has its own toggle, pass its resolved `"light"` or `"dark"`. Theme changes crossfade the palette without resetting motion. Both palettes live in the config. Generator configs use Kilowatt's `chart.sequential` for the dots and `border.level2` for the background grid; configs from before the Kilowatt restyle carry their own ramp and green accent, and still render.
 
 `paused` freezes the field at its current frame. Reduced-motion users get a static frame automatically. Animation also stops while the canvas is offscreen or the tab is hidden, and resumes where it left off.
 

@@ -11,4 +11,4 @@ const result=await build({
   }}]
 });
 await writeFile(join(tmpdir(),'orbit-build-meta.json'),JSON.stringify(result.metafile));
-console.log('Built Kilowatt editor → dist/studio.js. Runtime/export modules remain separate.');
+console.log('Built Kilowatt Studio (Orbit + Field) → dist/studio.js. Runtime/export modules remain separate.');

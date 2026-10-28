@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Alert, AppBar, Box, Button, Card, CardActionArea, CardContent, CardHeader, Chip, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, GlobalStyles, IconButton, MenuItem, Snackbar, Slider, Stack, TextField, ToggleButton, ToggleButtonGroup, Toolbar, Tooltip, Typography, useMediaQuery } from '@mui/material';
-import { useColorScheme, useTheme } from '@mui/material/styles';
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Card, CardActionArea, CardContent, CardHeader, Chip, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, MenuItem, Snackbar, Slider, Stack, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { Icon } from './icons';
 import { createEditorStore, PRESET_KEY } from './editor-state';
 import { ranges, selects } from './fields';
@@ -77,12 +77,12 @@ function PresetCard({id,preset,active,onClick}) {
   </Card>;
 }
 
-export function App() {
+/** Orbit, the dot sphere editor. Rendered inside the Kilowatt Studio shell (src/Studio.jsx), which owns the app bar and theme toggle. */
+export function OrbitView() {
   const [store]=useState(()=>createEditorStore({getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)}));
   const state=useSyncExternalStore(store.subscribe,store.getSnapshot), {settings,selected}=state;
   const item=state.library.items.find(p=>p.id===selected), selectedName=item?.name || presets[selected]?.name || 'Current design';
   const dirty=item && JSON.stringify(item.settings)!==JSON.stringify(settings);
-  const {mode,systemMode,setMode}=useColorScheme(), editorMode=(mode==='system'?systemMode:mode)||'light';
   const reduced=useMediaQuery('(prefers-reduced-motion: reduce)');
   const [paused,setPaused]=useState(false),[view,setView]=useState('dark'),[drawMs,setDrawMs]=useState(null);
   const [toast,setToast]=useState(null),[exportOpen,setExportOpen]=useState(false),[busy,setBusy]=useState(false),[copied,setCopied]=useState(false),[size,setSize]=useState(null);
@@ -104,13 +104,6 @@ export function App() {
     previousView.current=view;
   },[view]);
   function notify(message,severity='success'){setToast({message,severity,key:Date.now()});}
-  function toggleTheme(){
-    const override=document.createElement('style');
-    override.textContent='*,*::before,*::after{transition:none !important}';
-    document.head.append(override);
-    setMode(editorMode==='light'?'dark':'light');
-    requestAnimationFrame(()=>{void document.body.offsetHeight;requestAnimationFrame(()=>override.remove());});
-  }
   function attempt(action,message){try{action();if(message)notify(message);}catch(error){notify(error.message,'error');}}
   function change(patch){store.change(patch);}
   function openPreset(mode){setName(mode==='rename'?selectedName:'');setNameError('');setPresetDialog(mode);}
@@ -125,21 +118,7 @@ export function App() {
   const measured=size?number.format(size.bytes/1024)+' KB'+(size.compressed?' gzipped':' uncompressed'):'Measuring…';
   const status=reduced?'Static preview':paused?'Paused':'Live preview';
   return <>
-    {/* Preserve the phone tap targets from the mobile review; the upstream theme stays unchanged. */}
-    <GlobalStyles styles={theme=>({
-      [theme.breakpoints.down('sm')]:{'.MuiButton-root,.MuiIconButton-root,.MuiToggleButton-root':{minHeight:44},'.MuiIconButton-root':{minWidth:44}},
-      '@media (pointer: coarse)':{'.MuiButton-root,.MuiIconButton-root,.MuiToggleButton-root':{minHeight:44},'.MuiIconButton-root':{minWidth:44}}
-    })}/>
-    <AppBar position="static" color="default" elevation={0} sx={{bgcolor:'background.level2',borderBottom:1,borderColor:'divider'}}>
-      <Toolbar sx={{gap:2,flexWrap:'wrap',py:1}}>
-        <Typography variant="h5" component="a" href="./" sx={{color:'text.primary',textDecoration:'none'}}>Orbit</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{display:{xs:'none',sm:'block'}}}>Dot Sphere Studio</Typography>
-        <Box sx={{flex:1}}/>
-        <Tooltip title={'Switch editor to '+(editorMode==='light'?'dark':'light')+' mode'}><IconButton aria-label={'Switch editor to '+(editorMode==='light'?'dark':'light')+' mode'} onClick={toggleTheme}><Icon name={editorMode==='light'?'dark_mode':'light_mode'}/></IconButton></Tooltip>
-        <Button variant="contained" startIcon={<Icon name="download"/>} onClick={()=>setExportOpen(true)}>Export React</Button>
-      </Toolbar>
-    </AppBar>
-    <Container maxWidth="xl" component="main" sx={{py:3}}>
+    <Container maxWidth="xl" sx={{py:3}}>
       {state.storageError&&<Alert severity="warning" sx={{mb:3}}>{state.storageError}</Alert>}
       <Box sx={t=>({display:'grid',gridTemplateColumns:{xs:'minmax(0,1fr)',md:t.spacing(44)+' minmax(0,1fr)'},gridTemplateAreas:{xs:'"preview" "controls"',md:'"controls preview"'},gap:3,alignItems:'start'})}>
         <Stack component="section" aria-label="Object preview" spacing={3} sx={{gridArea:'preview',minWidth:0}}>
@@ -157,7 +136,10 @@ export function App() {
             <CardContent>
               <Stack direction="row" sx={{alignItems:"center",justifyContent:"space-between",gap:2}}>
                 <Typography variant="body2" sx={{overflowWrap:'anywhere',minWidth:0}}>{selectedName}</Typography>
-                {!reduced&&<Button variant="outlined" onClick={()=>setPaused(v=>!v)} aria-label={paused?'Play animation':'Pause animation'}>{paused?'Resume':'Pause'}</Button>}
+                <Stack direction="row" useFlexGap sx={{flexWrap:'wrap',gap:1}}>
+                  {!reduced&&<Button variant="outlined" onClick={()=>setPaused(v=>!v)} aria-label={paused?'Play animation':'Pause animation'}>{paused?'Resume':'Pause'}</Button>}
+                  <Button variant="contained" startIcon={<Icon name="download"/>} onClick={()=>setExportOpen(true)}>Export React</Button>
+                </Stack>
               </Stack>
               {reduced&&<Typography variant="caption" color="text.secondary">Static preview · reduced motion enabled</Typography>}
               <Stack direction="row" useFlexGap sx={{justifyContent:"space-between",flexWrap:"wrap",gap:1,mt:1}}>

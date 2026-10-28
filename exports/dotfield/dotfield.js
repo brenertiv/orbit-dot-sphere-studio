@@ -18,12 +18,72 @@ function fbm(x, y, s) {
   return 0.5 * vnoise(x, y, s) + 0.3 * vnoise(x * 2.1 + 7, y * 2.1 + 3, s + 1) + 0.2 * vnoise(x * 4.3 + 11, y * 4.3 + 5, s + 2);
 }
 
-const COMP = {
+/** The compositions a config can name, besides "source" (a baked image). */
+export const COMPOSITIONS = {
   tide: (u, v, t, sc, seed) => { const n = fbm(u * 3 / sc + t * 0.6, v * 3 / sc, seed); return v * 1.15 - 0.25 + (n - 0.5) * 0.9; },
   band: (u, v, t, sc, seed) => { const n = fbm(u * 3 / sc + t * 0.5, v * 3 / sc, seed); const d = Math.abs(v - 0.62 + (n - 0.5) * 0.25); return 1.05 - d * 4.2 / sc + (n - 0.5) * 0.35; },
   cluster: (u, v, t, sc, seed) => { const cx = 0.5 + 0.18 * Math.cos(t * 0.9), cy = 0.5 + 0.14 * Math.sin(t * 0.7); const n = fbm(u * 4 / sc + t * 0.4, v * 4 / sc, seed); const d = Math.hypot((u - cx) * 1.33, v - cy); return 1.1 - d * 2.6 / sc + (n - 0.5) * 0.75; },
   coverage: (u, v, t, sc, seed) => { const n = fbm(u * 2.2 / sc + t * 0.3, v * 2.2 / sc + t * 0.2, seed); return (n - 0.35) * 2.2; },
 };
+
+/** The indexes of the palette tones a config uses: `toneSteps` picks evenly from the tones it has. */
+export function toneIndexes(count, steps) {
+  const out = [];
+  for (let i = 0; i < steps; i++) out.push(Math.round(i * (count - 1) / (steps - 1)));
+  return out;
+}
+
+/** Cover-fit a baked luminance grid (config.source) onto a grid of cols × rows, as 0–1 values. */
+export function bakedLuminance(source, cols, rows) {
+  if (!source || !source.data) return null;
+  const out = new Float32Array(cols * rows);
+  const sc = Math.max(cols / source.cols, rows / source.rows), dw = source.cols * sc, dh = source.rows * sc, ox = (cols - dw) / 2, oy = (rows - dh) / 2;
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const sx = Math.min(source.cols - 1, Math.max(0, Math.floor((i - ox) / sc)));
+    const sy = Math.min(source.rows - 1, Math.max(0, Math.floor((j - oy) / sc)));
+    out[j * cols + i] = source.data[sy * source.cols + sx] / 255;
+  }
+  return out;
+}
+
+/**
+ * One frame of a Dot Field, without drawing it: groups of circles, each with the fill
+ * it takes from `palette` ({tones, grid, accent?}) and a flat [x, y, r, …] list.
+ * `luminance(cols, rows)` overrides the config's baked source, for live images and video.
+ * Group names: "grid", "tone-1"…"tone-n", and "accent" when the palette has one.
+ */
+export function fieldFrame(cfg, W, H, t, palette, luminance) {
+  const { cell, maxDot, baseDot } = cfg.grid;
+  const { scale, contrast, toneSteps } = cfg.field;
+  const idx = toneIndexes(palette.tones.length, toneSteps), n = idx.length;
+  const cols = Math.ceil(W / cell) + 1, rows = Math.ceil(H / cell) + 1;
+  const ox = (W - (cols - 1) * cell) / 2, oy = (H - (rows - 1) * cell) / 2;
+  const base = cell * 0.5 * baseDot, seed = cfg.seed;
+  const hasAccent = palette.accent != null;
+  const accentRate = hasAccent ? (cfg.color.accentRate || 0) : 0;
+  const groups = [{ name: 'grid', fill: palette.grid, dots: [] }, ...idx.map((k, i) => ({ name: 'tone-' + (i + 1), fill: palette.tones[k], dots: [] }))];
+  if (hasAccent) groups.push({ name: 'accent', fill: palette.accent, dots: [] });
+  const grid = groups[0].dots, accent = hasAccent ? groups[groups.length - 1].dots : null;
+  const useSrc = cfg.composition === 'source';
+  const lum = useSrc ? (luminance ? luminance(cols, rows) : bakedLuminance(cfg.source, cols, rows)) : null;
+  const comp = COMPOSITIONS[cfg.composition] || COMPOSITIONS.tide;
+  const src = cfg.source || {};
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const x = ox + i * cell, y = oy + j * cell;
+    let v;
+    if (useSrc) {
+      if (!lum) v = 0;
+      else { let L = lum[j * cols + i]; if (src.invert) L = 1 - L; v = L + (fbm(i / cols * 3 / scale + t * 0.5, j / rows * 3 / scale, seed) - 0.5) * (src.noiseMix || 0); }
+    } else v = comp(i / cols, j / rows, t, scale, seed);
+    v = Math.max(0, Math.min(1, 0.5 + (v - 0.5) * contrast));
+    if (v < 0.06) { if (base > 0.35) grid.push(x, y, base); continue; }
+    const r = cell * 0.5 * (baseDot + (maxDot - baseDot) * v);
+    const k = Math.min(n - 1, Math.floor(v * n));
+    const isAccent = accent && v > 0.35 && hash(i, j, seed + 99) < accentRate * v;
+    (isAccent ? accent : groups[k + 1].dots).push(x, y, r);
+  }
+  return groups;
+}
 
 function hexToRgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
 function mix(a, b, k) { return a.map((x, i) => Math.round(x + (b[i] - x) * k)); }
@@ -45,59 +105,17 @@ export function createDotField(canvas, config, opts = {}) {
   let blend = 1, from = null; // theme crossfade
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Baked image source (optional): cover-fit the stored luminance grid onto the live grid.
-  function sourceLum(cols, rows) {
-    const s = cfg.source; if (!s || !s.data) return null;
-    const out = new Float32Array(cols * rows);
-    const sc = Math.max(cols / s.cols, rows / s.rows), dw = s.cols * sc, dh = s.rows * sc, ox = (cols - dw) / 2, oy = (rows - dh) / 2;
-    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
-      const sx = Math.min(s.cols - 1, Math.max(0, Math.floor((i - ox) / sc)));
-      const sy = Math.min(s.rows - 1, Math.max(0, Math.floor((j - oy) / sc)));
-      out[j * cols + i] = s.data[sy * s.cols + sx] / 255;
-    }
-    return out;
-  }
-
+  // Colours as rgb triples, crossfading after a theme change. The accent is optional.
   function palette() {
     const cur = cfg.color[theme];
-    if (!from || blend >= 1) return { tones: cur.tones.map(hexToRgb), grid: hexToRgb(cur.grid), accent: hexToRgb(cur.accent) };
+    const out = { tones: cur.tones.map(hexToRgb), grid: hexToRgb(cur.grid) };
+    if (cur.accent) out.accent = hexToRgb(cur.accent);
+    if (!from || blend >= 1) return out;
     return {
-      tones: cur.tones.map((c, i) => mix(hexToRgb(from.tones[i] || c), hexToRgb(c), blend)),
-      grid: mix(hexToRgb(from.grid), hexToRgb(cur.grid), blend),
-      accent: mix(hexToRgb(from.accent), hexToRgb(cur.accent), blend),
+      tones: cur.tones.map((c, i) => mix(hexToRgb(from.tones[i] || c), out.tones[i], blend)),
+      grid: mix(hexToRgb(from.grid), out.grid, blend),
+      ...(out.accent ? { accent: mix(hexToRgb(from.accent || cur.accent), out.accent, blend) } : {}),
     };
-  }
-
-  function frame(t) {
-    const P = palette();
-    const { cell, maxDot, baseDot } = cfg.grid;
-    const { scale, contrast, toneSteps: n } = cfg.field;
-    const tones = [];
-    for (let i = 0; i < n; i++) tones.push(P.tones[Math.round(i * (P.tones.length - 1) / (n - 1))]);
-    const cols = Math.ceil(W / cell) + 1, rows = Math.ceil(H / cell) + 1;
-    const ox = (W - (cols - 1) * cell) / 2, oy = (H - (rows - 1) * cell) / 2;
-    const base = cell * 0.5 * baseDot, seed = cfg.seed, accentRate = cfg.color.accentRate || 0;
-    const groups = [{ fill: P.grid, dots: [] }, ...tones.map((c) => ({ fill: c, dots: [] })), { fill: P.accent, dots: [] }];
-    const grid = groups[0].dots, accent = groups[groups.length - 1].dots;
-    const useSrc = cfg.composition === 'source';
-    const lum = useSrc ? sourceLum(cols, rows) : null;
-    const comp = COMP[cfg.composition] || COMP.tide;
-    const src = cfg.source || {};
-    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
-      const x = ox + i * cell, y = oy + j * cell;
-      let v;
-      if (useSrc) {
-        if (!lum) v = 0;
-        else { let L = lum[j * cols + i]; if (src.invert) L = 1 - L; v = L + (fbm(i / cols * 3 / scale + t * 0.5, j / rows * 3 / scale, seed) - 0.5) * (src.noiseMix || 0); }
-      } else v = comp(i / cols, j / rows, t, scale, seed);
-      v = Math.max(0, Math.min(1, 0.5 + (v - 0.5) * contrast));
-      if (v < 0.06) { if (base > 0.35) grid.push(x, y, base); continue; }
-      const r = cell * 0.5 * (baseDot + (maxDot - baseDot) * v);
-      const k = Math.min(n - 1, Math.floor(v * n));
-      const isAccent = v > 0.35 && hash(i, j, seed + 99) < accentRate * v;
-      (isAccent ? accent : groups[k + 1].dots).push(x, y, r);
-    }
-    return groups;
   }
 
   function draw(now) {
@@ -105,7 +123,7 @@ export function createDotField(canvas, config, opts = {}) {
     if (!paused && !reduced) lastT = ((now - t0) / 1000) * cfg.field.speed;
     if (blend < 1) blend = Math.min(1, blend + 0.06);
     ctx.clearRect(0, 0, W, H);
-    for (const g of frame(lastT)) {
+    for (const g of fieldFrame(cfg, W, H, lastT, palette())) {
       if (!g.dots.length) continue;
       const p = new Path2D();
       for (let i = 0; i < g.dots.length; i += 3) { p.moveTo(g.dots[i] + g.dots[i + 2], g.dots[i + 1]); p.arc(g.dots[i], g.dots[i + 1], g.dots[i + 2], 0, 6.2832); }

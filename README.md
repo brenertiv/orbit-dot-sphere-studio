@@ -1,4 +1,13 @@
-# Orbit — Dot Sphere Studio
+# Kilowatt Studio
+
+Two editors for Enertiv's decorative dot illustrations, in one app with an **Orbit | Field** switch in the app bar:
+
+- **Orbit** (`#orbit`) — animated dot spheres, ellipsoids and tori. Described below.
+- **Field** (`#field`) — round dots on a fixed grid, coloured with Kilowatt's `chart.sequential`. See [Field](#field).
+
+`src/Studio.jsx` is the shell: the app bar, the tool tabs (the URL hash names the open tool) and the light/dark toggle. Both tools stay mounted, so switching tabs keeps their settings; the hidden tool stops animating. The repository keeps its original name.
+
+## Orbit — Dot Sphere Studio
 
 A browser-local generator for decorative animated dot shapes. The editor uses React and MUI with the Kilowatt theme. Exports are dependency-free Canvas 2D plus a thin React wrapper; React is supplied by the consuming application.
 
@@ -69,15 +78,19 @@ React, React DOM, MUI, and Emotion power the editor. jsdom and esbuild are devel
 
 The default reference export measured 13,136 bytes gzipped for renderer + wrapper + prepared design (3,613 bytes for renderer + wrapper alone) after adding Waveform. The 1,200-dot Waveform export measures 10,751 bytes gzipped, including both themes. This is source gzip, not a promise about an application's complete bundle. The export dialog recalculates for each design. Desktop preview drawing was around 0.5–1.1 ms per frame in the development browser; this excludes browser compositing/GPU completion. Actual phone hardware and multiple-instance performance still need device-specific profiling. 60 fps is a target, not a guarantee.
 
-## Dot Field
+## Field
 
-A second generator lives at `dist/dotfield/` (served at `/dotfield/`): round dots on a fixed grid, sized and toned by a slow noise field or a supplied image/video, in the Navy→Brand or Brand-only ramp with a sparse decorative Green accent. It exports SVG stills and a config object.
+Field lives in `src/dotfield/` and renders as the `#field` tab: round dots on a fixed grid, sized and toned by a slow noise field or a supplied image or video. The old `/dotfield/` address redirects to `#field`; `dist/dotfield/dotfield-react.zip` stays there for download links.
 
-The React package is in `exports/dotfield/` (also downloadable from the page as `dotfield-react.zip`). Copy the `dotfield` folder into an app, paste a copied config as `export default { … }`, and render `<DotField config={…} theme="system" />`. See `exports/dotfield/README.md`.
+- **Colours come from the theme.** Dots use `chart.sequential` (light to dark in light, reversed in dark), the background grid uses `border.level2`, and previews and SVG backgrounds use each scheme's `background.level0`. Refreshing `src/mui` from upstream recolours the illustrations with it.
+- **The preview draws what ships.** The editor calls `fieldFrame` from `exports/dotfield/dotfield.js`, the same function the exported component draws with.
+- **Editor logic without React** lives in `src/dotfield/config.js` (state ↔ config, parsing pasted configs, SVG) and is covered by `tests/dotfield.test.mjs`.
+
+It exports SVG stills (light, dark or both) and a config object. The React package is in `exports/dotfield/`. Copy the `dotfield` folder into an app, paste a copied config as `export default { … }`, and render `<DotField config={…} theme="system" />`. See `exports/dotfield/README.md`.
 
 ## GitHub Pages
 
-`.github/workflows/pages.yml` publishes `dist/` on every push to `main`. Enable it once under Settings → Pages → Build and deployment → Source: GitHub Actions. The studio is then at the site root and the Dot Field at `/dotfield/`.
+`.github/workflows/pages.yml` publishes `dist/` on every push to `main`. Enable it once under Settings → Pages → Build and deployment → Source: GitHub Actions. Kilowatt Studio is then at the site root: Orbit at `#orbit`, Field at `#field`.
 
 ## Hosting
 
