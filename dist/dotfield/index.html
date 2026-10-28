@@ -3,161 +3,357 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Round-dot grid illustration generator for Enertiv, using the Slate, Navy, Brand and Green tokens.">
+<meta name="description" content="Round-dot grid illustration generator for Enertiv, styled with Kilowatt UI and coloured with chart.sequential.">
 <title>Enertiv Dot Field</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300,0..1,0&display=block">
 <style>
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 [hidden]{display:none!important}
 
-/* Layout: canvas stage on the left, a narrow instrument panel on the right; stacks at phone width. */
-:root{
-  --bg:#f9fafc;          /* Slate 100 */
-  --panel:#ffffff;       /* Slate 50 */
-  --line:#e7ecf2;        /* Slate 400 */
-  --fg:#0d2029;          /* Navy 900 */
-  --muted:#426a8a;       /* Navy 400 */
-  --brand:#2585b4;       /* Brand 600 */
-  --stage:#ffffff;
-  --font-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+/* Kilowatt UI roles, mirrored from Foundations (Color, Typography, MUI departures) at
+   https://kilowatt-ui.vercel.app. Names follow MUI's theme paths so each one maps back to a role.
+   This page restyles static HTML; it isn't rendered under MuiProvider, so refresh these values
+   if Kilowatt's palette changes. Layout: settings card left, sticky preview card right; preview first on phones. */
+:root, .scheme-light{
+  --mui-palette-background-level0:#edf1f5; --mui-palette-background-level1:#f3f6f9;
+  --mui-palette-background-level2:#f9fafc; --mui-palette-background-level3:#ffffff;
+  --mui-palette-border-level0:#e7ecf2; --mui-palette-divider:#e2e8ef; --mui-palette-border-level2:#d6dee8;
+  --mui-palette-text-primary:#09161c; --mui-palette-text-secondary:#535e6b; --mui-palette-text-disabled:rgba(0,0,0,.38);
+  --mui-palette-primary-main:#0b1c24; --mui-palette-primary-dark:#09161c; --mui-palette-primary-contrastText:#fff;
+  --mui-palette-primary-track:rgba(11,28,36,.38);
+  --mui-palette-control-border:#dce3ec; --mui-palette-control-hover:#c3cfdd; --mui-palette-control-focus:#1c6487; --mui-palette-control-pressed:#0a374a;
+  --mui-palette-action-active:#535e6b; --mui-palette-action-hover:rgba(0,0,0,.04); --mui-palette-action-selected:rgba(0,0,0,.08);
+  --mui-palette-chart-sequential-0:#b9e1f5; --mui-palette-chart-sequential-1:#74c4eb; --mui-palette-chart-sequential-2:#2ea6e1;
+  --mui-palette-chart-sequential-3:#1c6487; --mui-palette-chart-sequential-4:#09212d;
+  --mui-palette-error-main:#c62828;
+  --mui-shape-borderRadius:8px; --mui-spacing:8px;
+  --mui-shadows-6:0px 3px 5px -1px rgba(0,0,0,.2),0px 6px 10px 0px rgba(0,0,0,.14),0px 1px 18px 0px rgba(0,0,0,.12);
+  --font:"Roboto","Helvetica","Arial",sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#09161c; --panel:#0d2029; --line:#1b3e4f; --fg:#dcf0fa; --muted:#88beec; --brand:#74c4eb; --stage:#09161c; color-scheme:dark;
+    --mui-palette-background-level0:#09161c; --mui-palette-background-level1:#0b1c24;
+    --mui-palette-background-level2:#0e2630; --mui-palette-background-level3:#092c3b;
+    --mui-palette-border-level0:#092c3b; --mui-palette-divider:#0a3142; --mui-palette-border-level2:#0a374a;
+    --mui-palette-text-primary:#f9fafc; --mui-palette-text-secondary:#c3cfdd; --mui-palette-text-disabled:rgba(255,255,255,.5);
+    --mui-palette-primary-main:#d6dee8; --mui-palette-primary-dark:#c3cfdd; --mui-palette-primary-contrastText:#09161c;
+    --mui-palette-primary-track:rgba(214,222,232,.38);
+    --mui-palette-control-border:#0a374a; --mui-palette-control-hover:#0d4963; --mui-palette-control-focus:#96d3f0; --mui-palette-control-pressed:#c3cfdd;
+    --mui-palette-action-active:#c3cfdd; --mui-palette-action-hover:rgba(255,255,255,.08); --mui-palette-action-selected:rgba(255,255,255,.16);
+    --mui-palette-chart-sequential-0:#09212d; --mui-palette-chart-sequential-1:#1c6487; --mui-palette-chart-sequential-2:#2ea6e1;
+    --mui-palette-chart-sequential-3:#74c4eb; --mui-palette-chart-sequential-4:#b9e1f5;
+    --mui-palette-error-main:#ffcdd2;
+    color-scheme:dark;
   }
 }
-:root[data-theme="dark"]{
-  --bg:#09161c; --panel:#0d2029; --line:#1b3e4f; --fg:#dcf0fa; --muted:#88beec; --brand:#74c4eb; --stage:#09161c; color-scheme:dark;
+:root[data-theme="dark"], .scheme-dark{
+  --mui-palette-background-level0:#09161c; --mui-palette-background-level1:#0b1c24;
+  --mui-palette-background-level2:#0e2630; --mui-palette-background-level3:#092c3b;
+  --mui-palette-border-level0:#092c3b; --mui-palette-divider:#0a3142; --mui-palette-border-level2:#0a374a;
+  --mui-palette-text-primary:#f9fafc; --mui-palette-text-secondary:#c3cfdd; --mui-palette-text-disabled:rgba(255,255,255,.5);
+  --mui-palette-primary-main:#d6dee8; --mui-palette-primary-dark:#c3cfdd; --mui-palette-primary-contrastText:#09161c;
+  --mui-palette-primary-track:rgba(214,222,232,.38);
+  --mui-palette-control-border:#0a374a; --mui-palette-control-hover:#0d4963; --mui-palette-control-focus:#96d3f0; --mui-palette-control-pressed:#c3cfdd;
+  --mui-palette-action-active:#c3cfdd; --mui-palette-action-hover:rgba(255,255,255,.08); --mui-palette-action-selected:rgba(255,255,255,.16);
+  --mui-palette-chart-sequential-0:#09212d; --mui-palette-chart-sequential-1:#1c6487; --mui-palette-chart-sequential-2:#2ea6e1;
+  --mui-palette-chart-sequential-3:#74c4eb; --mui-palette-chart-sequential-4:#b9e1f5;
+  --mui-palette-error-main:#ffcdd2;
+  color-scheme:dark;
 }
+
+/* CssBaseline */
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-ui);font-size:14px;line-height:1.45;
-  padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:18px 10px;border-bottom:1px solid var(--line)}
-h1{font-size:17px;font-weight:600;margin:0;letter-spacing:-.01em}
-header p{margin:0;color:var(--muted);max-width:60ch}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;padding-block:20px}
-@media (max-width:760px){.layout{grid-template-columns:1fr}}
-.stage{position:relative;background:var(--stage);border:1px solid var(--line);border-radius:6px;overflow:hidden;aspect-ratio:4/3;max-width:100%;min-width:0}
-.stage canvas{display:block;width:100%;height:100%}
-.stage .tag{position:absolute;left:12px;bottom:10px;font:500 11px/1 var(--font-mono);color:var(--muted);letter-spacing:.04em;text-transform:uppercase;pointer-events:none}
-.panel{display:flex;flex-direction:column;gap:18px;min-width:0}
-fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
-legend{font:500 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0;margin-bottom:8px}
-.row{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}
-.row label{font-weight:500}
-.row output{font:500 12px var(--font-mono);color:var(--muted);font-variant-numeric:tabular-nums;min-width:4ch;text-align:right}
-.row input[type=range]{grid-column:1 / -1;width:100%;accent-color:var(--brand);margin:0}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chips button{font:500 12px var(--font-ui);padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
-.chips button[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
-.chips button:focus-visible,.row input:focus-visible,select:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.ramp{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
-.ramp div{height:22px;border-radius:3px;border:1px solid var(--line)}
-.ramp span{font:11px var(--font-mono);color:var(--muted);display:block;margin-top:4px}
-.note{color:var(--muted);font-size:12px;margin:0}
-pre{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;font:12px/1.5 var(--font-mono);overflow-x:auto;color:var(--fg)}
-select{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:5px 8px}
-.toggle{display:flex;align-items:center;gap:8px}
-@media (prefers-reduced-motion: reduce){.stage canvas{animation:none}}
+body{margin:0;background:var(--mui-palette-background-level0);color:var(--mui-palette-text-primary);font:400 1rem/1.5 var(--font);letter-spacing:.00938em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-synthesis:none}
+button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+:focus-visible{outline:2px solid var(--mui-palette-control-focus);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{text-wrap:balance} p{text-wrap:pretty}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* Typography variants */
+.t-h5{font-size:1.125rem;line-height:1.334;font-weight:400;letter-spacing:0}
+.t-h6{font-size:1rem;line-height:1.6;font-weight:400;letter-spacing:.0075em}
+.t-body1{font-size:1rem;line-height:1.5;letter-spacing:.00938em}
+.t-body2{font-size:.875rem;line-height:1.43;letter-spacing:.01071em}
+.t-caption{font-size:.75rem;line-height:1.66;letter-spacing:.03333em}
+.secondary{color:var(--mui-palette-text-secondary)}
+
+/* Icon: Material Symbols Outlined at weight 300 */
+.icon{font-family:"Material Symbols Outlined";font-weight:normal;font-style:normal;font-size:24px;line-height:1;display:inline-block;width:1em;height:1em;overflow:hidden;
+  letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-feature-settings:"liga";font-feature-settings:"liga";
+  font-variation-settings:"FILL" var(--icon-fill,0),"wght" var(--icon-weight,300);flex-shrink:0;user-select:none}
+
+/* AppBar + Toolbar */
+.appbar{position:sticky;top:0;z-index:1100;background:var(--mui-palette-background-level2);border-bottom:1px solid var(--mui-palette-divider)}
+.toolbar{max-width:1440px;margin:auto;min-height:64px;display:flex;align-items:center;gap:calc(3 * var(--mui-spacing));
+  padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.tabs{display:flex;align-self:stretch}
+.tab{display:inline-flex;align-items:center;justify-content:center;min-width:90px;padding:12px 16px;font:400 .875rem/1.25 var(--font);letter-spacing:.02857em;
+  color:var(--mui-palette-text-secondary);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab:hover{color:var(--mui-palette-text-primary)}
+.tab[aria-current="page"]{color:var(--mui-palette-primary-main);border-bottom-color:var(--mui-palette-primary-main)}
+.spacer{flex:1}
+.icon-button{width:40px;height:40px;padding:8px;border:0;background:transparent;border-radius:var(--mui-shape-borderRadius);color:var(--mui-palette-action-active);display:inline-grid;place-items:center;cursor:pointer}
+.icon-button:hover{background:var(--mui-palette-action-hover)}
+
+/* Page layout */
+main{max-width:1440px;margin:auto;padding-block:calc(3 * var(--mui-spacing));padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));
+  display:grid;grid-template-columns:340px minmax(0,1fr);grid-template-areas:"settings preview";gap:calc(3 * var(--mui-spacing));align-items:start}
+.settings{grid-area:settings;min-width:0}
+.preview{grid-area:preview;min-width:0;position:sticky;top:88px}
+@media (max-width:899.95px){
+  main{grid-template-columns:1fr;grid-template-areas:"preview" "settings";padding-block:calc(2 * var(--mui-spacing));gap:calc(2 * var(--mui-spacing));
+    padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .preview{position:static}
+  .toolbar{min-height:56px;gap:calc(2 * var(--mui-spacing));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .tab{min-width:0;padding:12px}
+}
+
+/* Card (outlined): level2, divider frame, twice the theme radius */
+.card{background:var(--mui-palette-background-level2);border:1px solid var(--mui-palette-divider);border-radius:calc(2 * var(--mui-shape-borderRadius));overflow:hidden}
+.card-header{display:flex;align-items:flex-start;gap:calc(2 * var(--mui-spacing));padding:calc(2 * var(--mui-spacing));flex-wrap:wrap}
+.card-header h2{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:36px}
+.card-actions{display:flex;gap:var(--mui-spacing);flex-wrap:wrap}
+.card-content{padding:0 calc(2 * var(--mui-spacing)) calc(2 * var(--mui-spacing))}
+.section{display:flex;flex-direction:column;gap:calc(2 * var(--mui-spacing));padding-block:calc(2 * var(--mui-spacing))}
+.section+.section{border-top:1px solid var(--mui-palette-divider)}
+.section:first-child{padding-top:0}
+.section:last-child{padding-bottom:0}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:64px;border-radius:var(--mui-shape-borderRadius);cursor:pointer;
+  font:400 .875rem/1.75 var(--font);letter-spacing:.02857em;text-decoration:none;transition:background-color 250ms cubic-bezier(.4,0,.2,1),border-color 250ms cubic-bezier(.4,0,.2,1)}
+.btn .icon{font-size:20px;margin-left:-4px}
+.btn-contained{padding:6px 16px;border:0;background:var(--mui-palette-primary-main);color:var(--mui-palette-primary-contrastText)}
+.btn-contained:hover{background:var(--mui-palette-primary-dark)}
+.btn-outlined{padding:5px 15px;border:1px solid var(--mui-palette-control-border);background:transparent;color:var(--mui-palette-primary-main)}
+.btn-outlined:hover{border-color:var(--mui-palette-control-hover);background:var(--mui-palette-action-hover)}
+.btn-outlined:active{border-color:var(--mui-palette-control-pressed)}
+.btn-text{padding:6px 8px;border:0;background:transparent;color:var(--mui-palette-primary-main)}
+.btn-text:hover{background:var(--mui-palette-action-hover)}
+.btn:disabled{opacity:.6;cursor:wait}
+
+/* ToggleButtonGroup */
+.toggle-group{display:inline-flex;border-radius:var(--mui-shape-borderRadius)}
+.toggle{display:inline-flex;align-items:center;gap:8px;padding:11px;border:1px solid var(--mui-palette-control-border);background:transparent;color:var(--mui-palette-text-secondary);
+  font:400 .875rem/1.75 var(--font);letter-spacing:.02857em;cursor:pointer;--icon-fill:0}
+.toggle .icon{font-size:20px}
+.toggle+.toggle{margin-left:-1px;border-left-color:transparent}
+.toggle:first-child{border-radius:var(--mui-shape-borderRadius) 0 0 var(--mui-shape-borderRadius)}
+.toggle:last-child{border-radius:0 var(--mui-shape-borderRadius) var(--mui-shape-borderRadius) 0}
+.toggle:hover{background:var(--mui-palette-action-hover)}
+.toggle[aria-pressed="true"]{color:var(--mui-palette-text-primary);background:var(--mui-palette-action-selected);--icon-fill:1}
+
+/* Outlined field (Select / TextField) */
+.field{position:relative}
+.field-label{position:absolute;left:0;top:0;transform:translate(14px,-9px);padding:0 4px;margin-left:-4px;background:var(--mui-palette-background-level2);
+  font:400 .75rem/1.4375 var(--font);letter-spacing:.00938em;color:var(--mui-palette-text-secondary);pointer-events:none;z-index:1}
+.field select,.field textarea{width:100%;font:400 1rem/1.4375 var(--font);letter-spacing:.00938em;color:var(--mui-palette-text-primary);background:transparent;
+  border:1px solid var(--mui-palette-control-border);border-radius:var(--mui-shape-borderRadius)}
+.field select{appearance:none;height:56px;padding:16.5px 32px 16.5px 14px;cursor:pointer}
+.field textarea{min-height:128px;padding:16.5px 14px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.875rem;line-height:1.43}
+.field select:hover,.field textarea:hover{border-color:var(--mui-palette-control-hover)}
+.field select:focus-visible,.field textarea:focus-visible{outline:0;border-color:var(--mui-palette-control-focus);box-shadow:inset 0 0 0 1px var(--mui-palette-control-focus)}
+.field:focus-within .field-label{color:var(--mui-palette-control-focus)}
+.field .icon{position:absolute;right:7px;top:16px;color:var(--mui-palette-action-active);pointer-events:none}
+.helper{margin:3px 14px 0;font-size:.75rem;line-height:1.66;letter-spacing:.03333em;color:var(--mui-palette-text-secondary)}
+.helper.error{color:var(--mui-palette-error-main)}
+
+/* Slider */
+.slider{display:grid;grid-template-columns:1fr auto;gap:0 var(--mui-spacing);align-items:baseline}
+.slider label{font-size:.875rem;line-height:1.43;letter-spacing:.01071em}
+.slider output{font-size:.875rem;line-height:1.43;color:var(--mui-palette-text-secondary);font-variant-numeric:tabular-nums}
+.slider .hint{grid-column:1/-1;font-size:.75rem;line-height:1.66;letter-spacing:.03333em;color:var(--mui-palette-text-secondary)}
+.slider input[type=range]{grid-column:1/-1;appearance:none;-webkit-appearance:none;width:100%;height:30px;margin:0;background:transparent;cursor:pointer;--fill:50%}
+.slider input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:12px;background:linear-gradient(to right,var(--mui-palette-primary-main) var(--fill),var(--mui-palette-primary-track) var(--fill))}
+.slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--mui-palette-primary-main);margin-top:-8px;transition:box-shadow 150ms cubic-bezier(.4,0,.2,1)}
+.slider input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 0 8px var(--mui-palette-action-hover)}
+.slider input[type=range]:focus-visible{outline:0}
+.slider input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--mui-palette-control-focus);outline-offset:2px}
+.slider input[type=range]::-moz-range-track{height:4px;border-radius:12px;background:var(--mui-palette-primary-track)}
+.slider input[type=range]::-moz-range-progress{height:4px;border-radius:12px;background:var(--mui-palette-primary-main)}
+.slider input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:50%;background:var(--mui-palette-primary-main)}
+
+/* Checkbox */
+.checkbox{display:inline-flex;align-items:center;cursor:pointer;margin-left:-11px;font-size:1rem;line-height:1.5}
+.checkbox input{position:absolute;opacity:0;width:1px;height:1px}
+.checkbox .box{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;color:var(--mui-palette-action-active)}
+.checkbox .box::before{content:"check_box_outline_blank";font-family:"Material Symbols Outlined";font-size:24px;font-variation-settings:"FILL" 0,"wght" 300}
+.checkbox input:checked+.box{color:var(--mui-palette-primary-main)}
+.checkbox input:checked+.box::before{content:"check_box";font-variation-settings:"FILL" 1,"wght" 300}
+.checkbox:hover .box{background:var(--mui-palette-action-hover)}
+.checkbox input:focus-visible+.box{outline:2px solid var(--mui-palette-control-focus);outline-offset:2px}
+
+/* Preview */
+.preview-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--mui-spacing) calc(2 * var(--mui-spacing));flex-wrap:wrap;margin-bottom:calc(2 * var(--mui-spacing))}
+.stage{position:relative;display:flex;aspect-ratio:4/3;max-width:100%;border:1px solid var(--mui-palette-divider);border-radius:var(--mui-shape-borderRadius);overflow:hidden}
+.pane{position:relative;flex:1;min-width:0;background:var(--mui-palette-background-level2)}
+.pane canvas{display:block;width:100%;height:100%}
+.pane+.pane{border-left:1px solid var(--mui-palette-divider)}
+.stage[data-view="light"] .pane.scheme-dark,.stage[data-view="dark"] .pane.scheme-light{display:none}
+.pane-names{display:none;margin-top:var(--mui-spacing)}
+.pane-names span{flex:1}
+.stage[data-view="compare"]~.pane-names{display:flex}
+.drop{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:calc(3 * var(--mui-spacing));pointer-events:none;
+  background:var(--mui-palette-background-level2);color:var(--mui-palette-text-secondary);border:2px dashed var(--mui-palette-control-focus);border-radius:var(--mui-shape-borderRadius)}
+.drop .icon{display:block;margin:0 auto var(--mui-spacing);font-size:40px}
+
+/* Colours readout */
+.seq{display:flex;flex-direction:column;gap:var(--mui-spacing)}
+.seq-row{display:grid;grid-template-columns:48px repeat(5,minmax(0,1fr));gap:4px;align-items:center;padding:var(--mui-spacing);border-radius:var(--mui-shape-borderRadius);background:var(--mui-palette-background-level2);border:1px solid var(--mui-palette-divider);color:var(--mui-palette-text-secondary)}
+.seq-row i{display:block;height:24px;border-radius:4px}
+.seq-row i.unused{opacity:.38}
+
+/* Disclosure */
+details{border-top:1px solid var(--mui-palette-divider)}
+details:last-of-type{border-bottom:1px solid var(--mui-palette-divider)}
+summary{list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:48px;cursor:pointer;font-size:1rem}
+summary::-webkit-details-marker{display:none}
+summary .icon{color:var(--mui-palette-action-active);transition:transform 150ms cubic-bezier(.4,0,.2,1)}
+details[open] summary .icon{transform:rotate(180deg)}
+.disclosure-body{padding-bottom:calc(2 * var(--mui-spacing));display:flex;flex-direction:column;gap:calc(2 * var(--mui-spacing))}
+pre{margin:0;padding:calc(2 * var(--mui-spacing));background:var(--mui-palette-background-level1);border-radius:var(--mui-shape-borderRadius);overflow:auto;max-height:320px;
+  font:400 .875rem/1.43 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--mui-palette-text-primary)}
+a.link{color:var(--mui-palette-primary-main);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--mui-palette-primary-main) 40%,transparent)}
+a.link:hover{text-decoration-color:inherit}
+
+/* Snackbar */
+.snackbar{position:fixed;z-index:1400;left:max(24px,env(safe-area-inset-left,0px));bottom:max(24px,env(safe-area-inset-bottom,0px));min-width:288px;max-width:calc(100vw - 48px);
+  padding:6px 16px;display:flex;align-items:center;gap:var(--mui-spacing);min-height:48px;border-radius:var(--mui-shape-borderRadius);
+  background:var(--mui-palette-background-level2);color:var(--mui-palette-text-primary);box-shadow:var(--mui-shadows-6);font-size:.875rem;line-height:1.43;letter-spacing:.01071em}
+.snackbar:empty{display:none}
+@media (max-width:599.95px){ .snackbar{left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom,0px));min-width:0} }
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
 </style>
 
 </head>
 <body>
-<header>
-  <h1>Enertiv Dot Field</h1>
-  <p>Round dots on a fixed grid. Size and tone are driven by a slow field; green appears as a sparse decorative accent. Tune, then copy the config.</p>
+<header class="appbar">
+  <div class="toolbar">
+    <h1 class="t-h5">Dot Field</h1>
+    <nav class="tabs" aria-label="Studio tools">
+      <a class="tab" href="https://brenertiv.github.io/orbit-dot-sphere-studio/">Orbit</a>
+      <a class="tab" href="https://brenertiv.github.io/orbit-dot-sphere-studio/dotfield/" aria-current="page">Dot Field</a>
+    </nav>
+    <span class="spacer"></span>
+    <button type="button" class="icon-button" id="uiTheme" aria-label="Switch to dark mode"><span class="icon" aria-hidden="true">dark_mode</span></button>
+  </div>
 </header>
 
-<div class="layout">
-  <div class="stage">
-    <canvas id="c" aria-hidden="true"></canvas>
-    <div class="tag" id="tag">tide · navy→brand</div>
-  </div>
-
-  <div class="panel">
-    <fieldset>
-      <legend>Composition</legend>
-      <div class="chips" id="presets">
-        <button type="button" data-p="tide" aria-pressed="true">Tide</button>
-        <button type="button" data-p="band">Band</button>
-        <button type="button" data-p="cluster">Cluster</button>
-        <button type="button" data-p="coverage">Coverage</button>
-        <button type="button" data-p="source">Image / video</button>
+<main>
+  <section class="preview card" aria-labelledby="previewTitle">
+    <div class="card-header">
+      <h2 class="t-h5" id="previewTitle">Preview</h2>
+      <div class="card-actions">
+        <button type="button" class="btn btn-contained" id="svg"><span class="icon" aria-hidden="true">download</span><span id="svgLabel">Download SVG</span></button>
+        <button type="button" class="btn btn-outlined" id="copy"><span class="icon" aria-hidden="true">content_copy</span>Copy Config</button>
+        <button type="button" class="btn btn-text" id="reseed" title="Generate a new random pattern"><span class="icon" aria-hidden="true">shuffle</span>Reseed</button>
       </div>
-    </fieldset>
-
-    <fieldset id="sourceFs" hidden>
-      <legend>Source</legend>
-      <input type="file" id="file" accept="image/*,video/*">
-      <p class="note" id="srcNote">Pick an image or a video. Bright areas become large dots; the file never leaves your browser.</p>
-      <div class="row"><label for="mix">Noise texture</label><output id="mixO">0.25</output><input type="range" id="mix" min="0" max="1" step="0.01" value="0.25"></div>
-      <div class="row toggle"><label for="invert">Invert (dark areas → large dots)</label><input type="checkbox" id="invert"></div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Grid</legend>
-      <div class="row"><label for="cell">Cell size</label><output id="cellO">14</output><input type="range" id="cell" min="6" max="28" value="14"></div>
-      <div class="row"><label for="dot">Max dot / cell</label><output id="dotO">0.90</output><input type="range" id="dot" min="0.3" max="1.0" step="0.01" value="0.9"></div>
-      <div class="row"><label for="floor">Base dot</label><output id="floorO">0.12</output><input type="range" id="floor" min="0" max="0.4" step="0.01" value="0.12"></div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Field</legend>
-      <div class="row"><label for="scale">Feature scale</label><output id="scaleO">0.55</output><input type="range" id="scale" min="0.2" max="1.5" step="0.01" value="0.55"></div>
-      <div class="row"><label for="contrast">Contrast</label><output id="contrastO">1.6</output><input type="range" id="contrast" min="0.6" max="3" step="0.05" value="1.6"></div>
-      <div class="row"><label for="steps">Tone steps</label><output id="stepsO">4</output><input type="range" id="steps" min="2" max="5" value="4"></div>
-      <div class="row"><label for="speed">Drift speed</label><output id="speedO">0.25</output><input type="range" id="speed" min="0" max="1" step="0.01" value="0.25"></div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Color</legend>
-      <div class="row">
-        <label for="ramp">Ramp</label>
-        <select id="ramp">
-          <option value="deep">Navy → Brand (deep)</option>
-          <option value="bright">Brand only (bright)</option>
-        </select>
+    </div>
+    <div class="card-content">
+      <div class="preview-bar">
+        <div class="toggle-group" role="group" aria-label="Preview surface">
+          <button type="button" class="toggle" data-view="light"><span class="icon" aria-hidden="true">light_mode</span>Light</button>
+          <button type="button" class="toggle" data-view="dark"><span class="icon" aria-hidden="true">dark_mode</span>Dark</button>
+          <button type="button" class="toggle" data-view="compare"><span class="icon" aria-hidden="true">splitscreen_left</span>Compare</button>
+        </div>
+        <p class="t-body2 secondary tnum" id="meta">Cluster · seed 4219</p>
       </div>
-      <div class="ramp" id="rampPreview"></div>
-      <div class="row"><label for="accent">Green accent</label><output id="accentO">6%</output><input type="range" id="accent" min="0" max="20" step="1" value="6"></div>
-      <div class="row toggle"><label for="theme">Theme</label>
-        <select id="theme"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select>
+      <div class="stage" id="stage" data-view="light">
+        <div class="pane scheme-light"><canvas aria-hidden="true"></canvas></div>
+        <div class="pane scheme-dark"><canvas aria-hidden="true"></canvas></div>
+        <div class="drop t-body1" id="drop" hidden><div><span class="icon" aria-hidden="true">upload_file</span><span id="dropText">Drop an image or video to use its shapes</span></div></div>
       </div>
-      <p class="note">Blues are the Slate / Navy / Brand tokens as supplied. Green steps are read from the swatch sheet and are approximate until the hex values are confirmed.</p>
-    </fieldset>
+      <div class="pane-names t-caption secondary"><span>Light surface</span><span>Dark surface</span></div>
+    </div>
+  </section>
 
-    <fieldset>
-      <legend>Config</legend>
-      <pre id="cfg"></pre>
-      <div class="chips"><button type="button" id="svg" hidden>Download SVG</button><button type="button" id="copy">Copy config</button><button type="button" id="reseed">Reseed</button></div>
-      <p class="note"><a href="./dotfield-react.zip" style="color:var(--brand)">Download the React component (zip)</a> — paste copied configs into it.</p>
-    </fieldset>
-  </div>
-</div>
+  <section class="settings card" aria-labelledby="settingsTitle">
+    <div class="card-header"><h2 class="t-h5" id="settingsTitle">Settings</h2></div>
+    <div class="card-content">
+      <div class="section">
+        <div>
+          <div class="field">
+            <label class="field-label" for="preset">Composition</label>
+            <select id="preset" aria-describedby="presetHelp">
+              <option value="tide">Tide</option>
+              <option value="band">Band</option>
+              <option value="cluster" selected>Cluster</option>
+              <option value="coverage">Coverage</option>
+              <option value="source">Image or video</option>
+            </select>
+            <span class="icon" aria-hidden="true">arrow_drop_down</span>
+          </div>
+          <p class="helper" id="presetHelp">Or drop an image or video onto the preview.</p>
+        </div>
+      </div>
+
+      <div class="section" id="sourceGroup" hidden>
+        <h3 class="t-h6">Source</h3>
+        <div>
+          <label class="btn btn-outlined" for="file"><span class="icon" aria-hidden="true">upload</span>Choose File</label>
+          <input type="file" id="file" accept="image/*,video/*" aria-describedby="srcNote" style="position:absolute;opacity:0;width:1px;height:1px">
+          <p class="t-caption secondary" id="srcNote" style="margin-top:4px">Bright areas become large dots. The file stays in your browser.</p>
+        </div>
+        <div class="slider"><label for="mix">Noise texture</label><output id="mixO" for="mix">0.25</output><span class="hint">Breaks up the image edges into organic shapes.</span><input type="range" id="mix" min="0" max="1" step="0.01" value="0.25"></div>
+        <label class="checkbox"><input type="checkbox" id="invert"><span class="box" aria-hidden="true"></span>Invert (dark areas become large dots)</label>
+      </div>
+
+      <div class="section">
+        <h3 class="t-h6">Grid</h3>
+        <div class="slider"><label for="cell">Grid spacing</label><output id="cellO" for="cell">14&nbsp;px</output><span class="hint">Distance between dot centres.</span><input type="range" id="cell" min="6" max="28" value="14"></div>
+        <div class="slider"><label for="dot">Largest dot</label><output id="dotO" for="dot">0.90</output><span class="hint">Size of the brightest dots, relative to the spacing.</span><input type="range" id="dot" min="0.3" max="1.0" step="0.01" value="0.9"></div>
+        <div class="slider"><label for="floor">Background grid</label><output id="floorO" for="floor">0.12</output><span class="hint">Size of the faint dots in empty areas. 0 removes the grid.</span><input type="range" id="floor" min="0" max="0.4" step="0.01" value="0.12"></div>
+      </div>
+
+      <div class="section">
+        <h3 class="t-h6">Shape</h3>
+        <div class="slider"><label for="scale">Shape size</label><output id="scaleO" for="scale">1.00</output><span class="hint">Higher values give broader, smoother forms.</span><input type="range" id="scale" min="0.2" max="1.5" step="0.01" value="1"></div>
+        <div class="slider"><label for="contrast">Edge contrast</label><output id="contrastO" for="contrast">1.60</output><span class="hint">Higher values give harder, more stepped edges.</span><input type="range" id="contrast" min="0.6" max="3" step="0.05" value="1.6"></div>
+        <div class="slider"><label for="speed">Drift speed</label><output id="speedO" for="speed">0.25</output><span class="hint">0 holds a still frame.</span><input type="range" id="speed" min="0" max="1" step="0.01" value="0.25"></div>
+      </div>
+
+      <div class="section">
+        <h3 class="t-h6">Colour</h3>
+        <div class="slider"><label for="steps">Tone steps</label><output id="stepsO" for="steps">4</output><span class="hint">How many of the five sequential blues the dots use.</span><input type="range" id="steps" min="2" max="5" value="4"></div>
+        <div class="seq t-caption" id="seq" aria-label="Sequential colours in use"></div>
+        <p class="t-caption secondary">Dots use Kilowatt’s <code>chart.sequential</code>; the background grid uses <code>border.level2</code>.</p>
+      </div>
+
+      <div class="section">
+        <h3 class="t-h6">Config</h3>
+        <div>
+          <details>
+            <summary>Show Config<span class="icon" aria-hidden="true">expand_more</span></summary>
+            <div class="disclosure-body"><pre id="cfg" class="tnum"></pre></div>
+          </details>
+          <details id="importBox">
+            <summary>Import Config<span class="icon" aria-hidden="true">expand_more</span></summary>
+            <div class="disclosure-body">
+              <div>
+                <div class="field">
+                  <label class="field-label" for="importText">Config</label>
+                  <textarea id="importText" spellcheck="false" aria-describedby="importHelp"></textarea>
+                </div>
+                <p class="helper" id="importHelp">Paste a config copied from this page or from a <code>*-config.js</code> file.</p>
+              </div>
+              <div><button type="button" class="btn btn-outlined" id="importApply">Apply Config</button></div>
+            </div>
+          </details>
+        </div>
+        <p class="t-body2"><a class="link" href="https://brenertiv.github.io/orbit-dot-sphere-studio/dotfield/dotfield-react.zip">Download the React component</a> <span class="secondary">(zip). Paste copied configs into it.</span></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="snackbar" id="snackbar" role="status" aria-live="polite"></div>
 
 <script>
-// ---- Tokens ------------------------------------------------------------
-const NAVY = {50:'#88beec',100:'#72abdb',200:'#6ca2cf',300:'#4f7da3',400:'#426a8a',500:'#365670',600:'#294a5f',700:'#1b3e4f',800:'#142f3c',900:'#0d2029',950:'#09161c'};
-const BRAND= {50:'#dcf0fa',100:'#b9e1f5',200:'#96d3f0',300:'#74c4eb',400:'#51b5e6',500:'#2ea6e1',600:'#2585b4',700:'#1c6487',800:'#12425a',900:'#09212d'};
-const SLATE= {50:'#ffffff',100:'#f9fafc',200:'#f3f6f9',300:'#edf1f5',400:'#e7ecf2',500:'#e2e8ef',600:'#dce3ec',700:'#d6dee8',800:'#d0dae5',900:'#cad5e2',950:'#c3cfdd'};
-// Green: approximated from the swatch sheet
-const GREEN= {300:'#00e59a',400:'#00cc89',500:'#1fb27a',600:'#11896a',700:'#0d6b55'};
-
-// Ramps run dark→light on dark surfaces and light→dark on light surfaces, so bigger dots are always the louder tone.
-const RAMPS = {
-  deep: {
-    dark:  { tones:[NAVY[700],NAVY[300],BRAND[300],BRAND[100],BRAND[50]], grid:NAVY[800],  accent:GREEN[300] },
-    light: { tones:[SLATE[600],NAVY[200],BRAND[500],BRAND[700],NAVY[600]], grid:SLATE[500], accent:GREEN[600] }
-  },
-  bright: {
-    dark:  { tones:[NAVY[600],BRAND[600],BRAND[400],BRAND[200],BRAND[50]], grid:NAVY[800],  accent:GREEN[300] },
-    light: { tones:[SLATE[600],BRAND[200],BRAND[400],BRAND[600],BRAND[800]], grid:SLATE[500], accent:GREEN[700] }
-  }
-};
-
 // ---- Noise --------------------------------------------------------------
 let seed = 4219;
 function hash(x,y,s){ let h = (x*374761393 + y*668265263 + s*1013904223) | 0; h = Math.imul(h ^ (h>>>13), 1274126177); return ((h ^ (h>>>16)) >>> 0) / 4294967296; }
@@ -170,17 +366,24 @@ function vnoise(x,y,s){
 }
 function fbm(x,y,s){ return 0.5*vnoise(x,y,s) + 0.3*vnoise(x*2.1+7,y*2.1+3,s+1) + 0.2*vnoise(x*4.3+11,y*4.3+5,s+2); }
 
-// ---- Compositions: return 0..1 intensity for normalised coords ----------
 const COMP = {
   tide:     (u,v,t,sc)=>{ const n=fbm(u*3/sc + t*0.6, v*3/sc, seed); return v*1.15 - 0.25 + (n-0.5)*0.9; },
   band:     (u,v,t,sc)=>{ const n=fbm(u*3/sc + t*0.5, v*3/sc, seed); const d=Math.abs(v-0.62+(n-0.5)*0.25); return 1.05 - d*4.2/sc + (n-0.5)*0.35; },
   cluster:  (u,v,t,sc)=>{ const cx=0.5+0.18*Math.cos(t*0.9), cy=0.5+0.14*Math.sin(t*0.7); const n=fbm(u*4/sc + t*0.4, v*4/sc, seed); const d=Math.hypot((u-cx)*1.33,(v-cy)); return 1.1 - d*2.6/sc + (n-0.5)*0.75; },
   coverage: (u,v,t,sc)=>{ const n=fbm(u*2.2/sc + t*0.3, v*2.2/sc + t*0.2, seed); return (n-0.35)*2.2; }
 };
+const NAMES = {tide:'Tide',band:'Band',cluster:'Cluster',coverage:'Coverage',source:'Image or video'};
+
+// ---- Colours: read from the Kilowatt roles on each pane, never written here --
+const stage = document.getElementById('stage');
+function rolesFor(el){
+  const cs = getComputedStyle(el), v = n => cs.getPropertyValue(n).trim();
+  return { tones:[0,1,2,3,4].map(i=>v('--mui-palette-chart-sequential-'+i)), grid:v('--mui-palette-border-level2'), surface:v('--mui-palette-background-level2') };
+}
+const ROLES = { light: rolesFor(stage.querySelector('.scheme-light')), dark: rolesFor(stage.querySelector('.scheme-dark')) };
 
 // ---- Image / video source ------------------------------------------------
-// Media is drawn cover-fit into a tiny canvas (one pixel per grid cell) and each cell reads its luminance.
-const SRC = { media:null, kind:null, name:'', lum:null, cols:0, rows:0 };
+const SRC = { media:null, kind:null, name:'' };
 const sc = document.createElement('canvas'), sctx = sc.getContext('2d', {willReadFrequently:true});
 function sampleSource(cols, rows){
   const m = SRC.media; if(!m) return null;
@@ -194,6 +397,7 @@ function sampleSource(cols, rows){
   return lum;
 }
 function loadSource(file){
+  if(!file || !/^(image|video)\//.test(file.type)){ say('That file isn’t an image or video.'); return; }
   if(SRC.media && SRC.kind==='video'){ SRC.media.pause(); URL.revokeObjectURL(SRC.media.src); }
   const url = URL.createObjectURL(file);
   SRC.name = file.name;
@@ -203,43 +407,31 @@ function loadSource(file){
   }else{
     const im = new Image(); im.onload=()=>{ SRC.media=im; SRC.kind='image'; sync(); kick(); }; im.src=url;
   }
-  document.getElementById('srcNote').textContent = file.name;
+  document.getElementById('srcNote').textContent = 'Using “' + file.name + '”. The file stays in your browser.';
 }
 
 // ---- State --------------------------------------------------------------
-const S = { preset:'tide', cell:14, dot:0.9, floor:0.12, scale:0.55, contrast:1.6, steps:4, speed:0.25, ramp:'deep', accent:6, theme:'system', mix:0.25, invert:false };
-const ids = ['cell','dot','floor','scale','contrast','steps','speed','accent','mix'];
-const cv = document.getElementById('c'), ctx = cv.getContext('2d');
-let W=0,H=0,dpr=1;
-
-function isDark(){ const t=document.documentElement.getAttribute('data-theme'); if(t) return t==='dark'; return matchMedia('(prefers-color-scheme: dark)').matches; }
-function palette(){ return RAMPS[S.ramp][isDark()?'dark':'light']; }
-
-function resize(){
-  const r = cv.getBoundingClientRect();
-  dpr = Math.min(window.devicePixelRatio||1, 1.75);
-  W = Math.round(r.width), H = Math.round(r.height);
-  cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-}
-new ResizeObserver(resize).observe(cv);
-
+const S = { preset:'cluster', cell:14, dot:0.9, floor:0.12, scale:1.0, contrast:1.6, steps:4, speed:0.25, mix:0.25, invert:false, view:null };
+const ids = ['cell','dot','floor','scale','contrast','steps','speed','mix'];
+const RANGES = {cell:[6,28],dot:[0.3,1],floor:[0,0.4],scale:[0.2,1.5],contrast:[0.6,3],steps:[2,5],speed:[0,1],mix:[0,1]};
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let t0 = performance.now();
+const nf2 = new Intl.NumberFormat(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const nf0 = new Intl.NumberFormat(undefined,{maximumFractionDigits:0});
+
+function uiDark(){ const t=document.documentElement.getAttribute('data-theme'); if(t) return t==='dark'; return matchMedia('(prefers-color-scheme: dark)').matches; }
+function view(){ return S.view || (uiDark() ? 'dark' : 'light'); }
+function themesInView(){ const v=view(); return v==='compare' ? ['light','dark'] : [v]; }
+
+// ---- Frame (shared by canvas and SVG) -------------------------------------
 let lastT = 0;
-// One frame of the field, as groups of circles keyed by fill. Shared by the canvas renderer and the SVG export.
-function frame(t, W, H){
-  const P = palette();
-  const n = S.steps;
-  const tones = [];
-  for(let i=0;i<n;i++){ tones.push(P.tones[Math.round(i*(P.tones.length-1)/(n-1))]); }
+function stepIndexes(){ const n=S.steps, out=[]; for(let i=0;i<n;i++) out.push(Math.round(i*4/(n-1))); return out; }
+function frame(t, W, H, theme){
+  const R = ROLES[theme], idx = stepIndexes(), n = idx.length;
   const cell = S.cell, cols = Math.ceil(W/cell)+1, rows = Math.ceil(H/cell)+1;
   const ox = (W - (cols-1)*cell)/2, oy = (H - (rows-1)*cell)/2;
-  const comp = COMP[S.preset];
-  const accentRate = S.accent/100;
-  const base = cell*0.5*S.floor;
-  const groups = [{fill:P.grid, dots:[]}, ...tones.map(c=>({fill:c, dots:[]})), {fill:P.accent, dots:[]}];
-  const grid = groups[0].dots, accent = groups[groups.length-1].dots;
+  const comp = COMP[S.preset], base = cell*0.5*S.floor;
+  const groups = [{name:'grid', fill:R.grid, dots:[]}, ...idx.map((k,i)=>({name:'tone-'+(i+1), fill:R.tones[k], dots:[]}))];
+  const grid = groups[0].dots;
   const useSrc = S.preset==='source';
   const lum = useSrc ? sampleSource(cols, rows) : null;
   for(let j=0;j<rows;j++){
@@ -247,123 +439,99 @@ function frame(t, W, H){
       const x = ox+i*cell, y = oy+j*cell;
       let v;
       if(useSrc){
-        if(!lum){ v = 0; }
-        else{
-          let L = lum[j*cols+i]; if(S.invert) L = 1-L;
-          const n = fbm(i/cols*3/S.scale + t*0.5, j/rows*3/S.scale, seed);
-          v = L + (n-0.5)*S.mix;
-        }
+        if(!lum) v = 0;
+        else { let L = lum[j*cols+i]; if(S.invert) L = 1-L; v = L + (fbm(i/cols*3/S.scale + t*0.5, j/rows*3/S.scale, seed)-0.5)*S.mix; }
       } else v = comp(i/cols, j/rows, t, S.scale);
       v = Math.max(0, Math.min(1, 0.5 + (v-0.5)*S.contrast));
       if(v < 0.06){ if(base>0.35) grid.push(x,y,base); continue; }
       const r = cell*0.5*(S.floor + (S.dot - S.floor)*v);
-      const k = Math.min(n-1, Math.floor(v*n));
-      const isAccent = v>0.35 && hash(i,j,seed+99) < accentRate*v;
-      (isAccent ? accent : groups[k+1].dots).push(x,y,r);
+      groups[Math.min(n-1, Math.floor(v*n))+1].dots.push(x,y,r);
     }
   }
   return groups;
 }
 
+// ---- Canvas panes ---------------------------------------------------------
+const panes = [...stage.querySelectorAll('.pane')].map(el=>{
+  const canvas = el.querySelector('canvas');
+  const p = { el, theme: el.classList.contains('scheme-dark') ? 'dark' : 'light', canvas, ctx: canvas.getContext('2d'), W:0, H:0 };
+  new ResizeObserver(()=>{
+    const r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio||1, 1.75);
+    p.W = Math.round(r.width); p.H = Math.round(r.height);
+    canvas.width = Math.max(1, Math.round(p.W*dpr)); canvas.height = Math.max(1, Math.round(p.H*dpr));
+    p.ctx.setTransform(dpr,0,0,dpr,0,0); kick();
+  }).observe(canvas);
+  return p;
+});
+function visiblePanes(){ const th = themesInView(); return panes.filter(p=>th.includes(p.theme)); }
+
+let t0 = performance.now(), rafPending = false;
 function draw(now){
+  rafPending = false;
   const t = reduced ? 0 : ((now - t0)/1000) * S.speed;
   lastT = t;
-  ctx.clearRect(0,0,W,H);
-  for(const g of frame(t, W, H)){
-    if(!g.dots.length) continue;
-    const p = new Path2D();
-    for(let i=0;i<g.dots.length;i+=3){ p.moveTo(g.dots[i]+g.dots[i+2], g.dots[i+1]); p.arc(g.dots[i], g.dots[i+1], g.dots[i+2], 0, 6.2832); }
-    ctx.fillStyle = g.fill; ctx.fill(p);
+  for(const p of visiblePanes()){
+    if(!p.W || !p.H) continue;
+    p.ctx.clearRect(0,0,p.W,p.H);
+    for(const g of frame(t, p.W, p.H, p.theme)){
+      if(!g.dots.length) continue;
+      const path = new Path2D();
+      for(let i=0;i<g.dots.length;i+=3){ path.moveTo(g.dots[i]+g.dots[i+2], g.dots[i+1]); path.arc(g.dots[i], g.dots[i+1], g.dots[i+2], 0, 6.2832); }
+      p.ctx.fillStyle = g.fill; p.ctx.fill(path);
+    }
   }
   const videoLive = S.preset==='source' && SRC.kind==='video' && SRC.media && !SRC.media.paused;
-  if(!reduced && (S.speed>0 || videoLive)) requestAnimationFrame(draw); else rafPending=false;
+  if(!reduced && (S.speed>0 || videoLive)) kick();
 }
-let rafPending=true;
-requestAnimationFrame(draw);
+function kick(){ if(!rafPending){ rafPending=true; requestAnimationFrame(draw); } }
+kick();
 
-function toSVG(){
-  const bg = isDark() ? NAVY[950] : SLATE[50];
-  const groups = frame(lastT, W, H);
+// ---- SVG export -------------------------------------------------------------
+function toSVG(p){
+  const {W,H,theme} = p;
   let out = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">\n`;
-  out += `  <!-- Enertiv Dot Field · ${S.preset} · seed ${seed} · ${S.ramp} ramp · ${isDark()?'dark':'light'} -->\n`;
-  out += `  <rect id="background" width="${W}" height="${H}" fill="${bg}"/>\n`;
-  const names = ['grid', ...Array.from({length:S.steps},(_,i)=>'tone-'+(i+1)), 'accent'];
-  groups.forEach((g,gi)=>{
-    if(!g.dots.length) return;
-    out += `  <g id="${names[gi]}" fill="${g.fill}">\n`;
-    for(let i=0;i<g.dots.length;i+=3){
-      out += `    <circle cx="${g.dots[i].toFixed(1)}" cy="${g.dots[i+1].toFixed(1)}" r="${g.dots[i+2].toFixed(2)}"/>\n`;
-    }
+  out += `  <!-- Enertiv Dot Field · ${S.preset} · seed ${seed} · ${theme} · Kilowatt chart.sequential on background.level2 -->\n`;
+  out += `  <rect id="background" width="${W}" height="${H}" fill="${ROLES[theme].surface}"/>\n`;
+  for(const g of frame(lastT, W, H, theme)){
+    if(!g.dots.length) continue;
+    out += `  <g id="${g.name}" fill="${g.fill}">\n`;
+    for(let i=0;i<g.dots.length;i+=3) out += `    <circle cx="${g.dots[i].toFixed(1)}" cy="${g.dots[i+1].toFixed(1)}" r="${g.dots[i+2].toFixed(2)}"/>\n`;
     out += `  </g>\n`;
-  });
+  }
   return out + `</svg>\n`;
 }
+const fileName = theme => `enertiv-dotfield-${S.preset}-${theme}-${seed}.svg`;
+
+let snackTimer;
+function say(msg){ const s=document.getElementById('snackbar'); s.textContent=msg; clearTimeout(snackTimer); snackTimer=setTimeout(()=>s.textContent='',4000); }
 
 (async ()=>{
   const btn = document.getElementById('svg');
-  // Outside Claude (e.g. GitHub Pages) the browser can save the file directly.
+  const files = () => visiblePanes().map(p=>({ filename:fileName(p.theme), data:toSVG(p) }));
   if(!window.claude?.use){
-    btn.hidden = false;
     btn.addEventListener('click', ()=>{
-      const url = URL.createObjectURL(new Blob([toSVG()], {type:'image/svg+xml'}));
-      const a = document.createElement('a');
-      a.href = url; a.download = `enertiv-dotfield-${S.preset}-${isDark()?'dark':'light'}-${seed}.svg`;
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(()=>URL.revokeObjectURL(url), 1000);
+      for(const f of files()){
+        const url = URL.createObjectURL(new Blob([f.data], {type:'image/svg+xml'}));
+        const a = document.createElement('a'); a.href = url; a.download = f.filename;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url), 1000);
+      }
+      say(view()==='compare' ? 'Downloaded the light and dark SVGs' : 'Downloaded the SVG');
     });
     return;
   }
   const downloads = await claude.use('downloads');
   if(!downloads){ btn.hidden = true; return; }
-  btn.hidden = false;
   btn.addEventListener('click', async ()=>{
-    const svg = toSVG();
-    const name = `enertiv-dotfield-${S.preset}-${isDark()?'dark':'light'}-${seed}.svg`;
-    btn.disabled = true; btn.textContent = 'Saving…';
-    try{ await downloads.save({filename:name, data:svg}); btn.textContent='Saved'; }
-    catch(err){ btn.textContent = err?.code==='declined' ? 'Download SVG' : 'Unavailable'; }
-    finally{ btn.disabled=false; setTimeout(()=>btn.textContent='Download SVG',1400); }
+    btn.disabled = true;
+    let saved = 0;
+    try{ for(const f of files()){ await downloads.save(f); saved++; } }
+    catch(err){ if(err?.code!=='declined') say('Saving isn’t available here.'); }
+    finally{ btn.disabled = false; if(saved) say(saved>1 ? 'Saved the light and dark SVGs' : 'Saved the SVG'); }
   });
 })();
-function kick(){ if(!rafPending){ rafPending=true; requestAnimationFrame(draw);} }
 
-// ---- UI -----------------------------------------------------------------
-function fmt(id,v){ return id==='accent' ? v+'%' : (id==='cell'||id==='steps') ? v : Number(v).toFixed(2); }
-ids.forEach(id=>{
-  const el=document.getElementById(id), o=document.getElementById(id+'O');
-  el.addEventListener('input',()=>{ S[id]=Number(el.value); o.textContent=fmt(id,el.value); sync(); kick(); });
-});
-document.getElementById('presets').addEventListener('click',e=>{
-  const b=e.target.closest('button'); if(!b) return;
-  S.preset=b.dataset.p;
-  [...e.currentTarget.children].forEach(x=>x.setAttribute('aria-pressed', x===b));
-  document.getElementById('sourceFs').hidden = S.preset!=='source';
-  if(SRC.kind==='video'){ if(S.preset==='source' && !reduced) SRC.media.play().catch(()=>{}); else SRC.media.pause(); }
-  sync(); kick();
-});
-document.getElementById('file').addEventListener('change',e=>{ const f=e.target.files[0]; if(f) loadSource(f); });
-document.getElementById('invert').addEventListener('change',e=>{ S.invert=e.target.checked; sync(); kick(); });
-document.querySelector('.stage').addEventListener('dragover',e=>e.preventDefault());
-document.querySelector('.stage').addEventListener('drop',e=>{
-  e.preventDefault(); const f=e.dataTransfer.files[0]; if(!f) return;
-  loadSource(f); document.querySelector('[data-p="source"]').click();
-});
-document.getElementById('ramp').addEventListener('change',e=>{ S.ramp=e.target.value; sync(); kick(); });
-document.getElementById('theme').addEventListener('change',e=>{
-  S.theme=e.target.value;
-  if(S.theme==='system') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme',S.theme);
-  sync(); kick();
-});
-matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ sync(); kick(); });
-document.getElementById('reseed').addEventListener('click',()=>{ seed=Math.floor(Math.random()*9000)+1000; sync(); kick(); });
-document.getElementById('copy').addEventListener('click',async e=>{
-  const txt=document.getElementById('cfg').textContent;
-  try{ await navigator.clipboard.writeText(txt); e.target.textContent='Copied'; }
-  catch{ const r=document.createRange(); r.selectNodeContents(document.getElementById('cfg')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); e.target.textContent='Selected'; }
-  setTimeout(()=>e.target.textContent='Copy config',1400);
-});
-
-// Bake the current image into the config as a small luminance grid so the React component needs no media file.
+// ---- Config -----------------------------------------------------------------
 function bakeSource(){
   const base = { file:SRC.name||null, kind:SRC.kind, noiseMix:S.mix, invert:S.invert };
   if(SRC.kind!=='image' || !SRC.media) return base;
@@ -371,17 +539,128 @@ function bakeSource(){
   const lum = sampleSource(cols, rows); if(!lum) return base;
   return { ...base, cols, rows, data: Array.from(lum, v=>Math.round(v*255)) };
 }
+function config(){
+  return { composition:S.preset, seed, grid:{cell:S.cell, maxDot:S.dot, baseDot:S.floor}, field:{scale:S.scale, contrast:S.contrast, toneSteps:S.steps, speed:S.speed},
+    ...(S.preset==='source' ? { source: bakeSource() } : {}),
+    color:{ palette:'chart.sequential', light:{tones:ROLES.light.tones, grid:ROLES.light.grid}, dark:{tones:ROLES.dark.tones, grid:ROLES.dark.grid} } };
+}
+function applyConfig(c){
+  if(!c || typeof c!=='object' || !c.grid || !c.field) throw new Error('This doesn’t look like a Dot Field config: it needs grid and field settings.');
+  if(!(c.composition in COMP) && c.composition!=='source') throw new Error('Unknown composition “'+c.composition+'”.');
+  const num = (v,[min,max],fallback)=>{ v=Number(v); return Number.isFinite(v) ? Math.min(max,Math.max(min,v)) : fallback; };
+  S.preset = c.composition; seed = Math.round(num(c.seed,[0,1e9],seed));
+  S.cell = num(c.grid.cell,RANGES.cell,S.cell); S.dot = num(c.grid.maxDot,RANGES.dot,S.dot); S.floor = num(c.grid.baseDot,RANGES.floor,S.floor);
+  S.scale = num(c.field.scale,RANGES.scale,S.scale); S.contrast = num(c.field.contrast,RANGES.contrast,S.contrast);
+  S.steps = Math.round(num(c.field.toneSteps,RANGES.steps,S.steps)); S.speed = num(c.field.speed,RANGES.speed,S.speed);
+  if(c.source){ S.mix = num(c.source.noiseMix,RANGES.mix,S.mix); S.invert = !!c.source.invert; }
+  ids.forEach(id=>{ document.getElementById(id).value = S[id]; paintRange(id); });
+  document.getElementById('invert').checked = S.invert;
+  setPreset(S.preset);
+  return !!(c.color && c.color.palette!=='chart.sequential');
+}
+function parseConfig(text){
+  let t = text.trim().replace(/^\s*\/\/.*$/gm,'').replace(/^\s*export\s+default\s*/,'').replace(/;\s*$/,'').trim();
+  try { return JSON.parse(t); } catch {}
+  const json = t.replace(/'([^'\\]*)'/g,'"$1"').replace(/([{,]\s*)([A-Za-z_$][\w$]*)\s*:/g,'$1"$2":').replace(/,\s*([}\]])/g,'$1').replace(/([:\[,]\s*)(-?)\.(\d)/g,'$1$20.$3');
+  return JSON.parse(json);
+}
+
+// ---- UI -----------------------------------------------------------------
+function fmt(id,v){ v=Number(v); return id==='cell' ? nf0.format(v)+'\u00a0px' : id==='steps' ? nf0.format(v) : nf2.format(v); }
+function paintRange(id){
+  const el=document.getElementById(id), [min,max]=RANGES[id];
+  el.style.setProperty('--fill', ((Number(el.value)-min)/(max-min)*100)+'%');
+  document.getElementById(id+'O').textContent = fmt(id, el.value);
+}
+ids.forEach(id=>{
+  const el=document.getElementById(id);
+  paintRange(id);
+  el.addEventListener('input',()=>{ S[id]=Number(el.value); paintRange(id); sync(); kick(); });
+});
+function setPreset(p){
+  S.preset = p;
+  document.getElementById('preset').value = p;
+  document.getElementById('sourceGroup').hidden = p!=='source';
+  if(SRC.kind==='video'){ if(p==='source' && !reduced) SRC.media.play().catch(()=>{}); else SRC.media.pause(); }
+  sync(); kick();
+}
+document.getElementById('preset').addEventListener('change',e=>setPreset(e.target.value));
+document.getElementById('file').addEventListener('change',e=>{ const f=e.target.files[0]; if(f) loadSource(f); });
+document.getElementById('invert').addEventListener('change',e=>{ S.invert=e.target.checked; sync(); kick(); });
+document.getElementById('reseed').addEventListener('click',()=>{ seed=Math.floor(Math.random()*9000)+1000; sync(); kick(); });
+document.querySelector('.toggle-group').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; S.view=b.dataset.view; sync(); kick(); });
+
+// Interface theme, separate from the preview surface
+const uiBtn = document.getElementById('uiTheme');
+function setUiTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  try{ localStorage.setItem('dotfield-ui-theme', t); }catch{}
+  sync(); kick();
+}
+try{ const saved = localStorage.getItem('dotfield-ui-theme'); if(saved==='light'||saved==='dark') document.documentElement.setAttribute('data-theme', saved); }catch{}
+uiBtn.addEventListener('click',()=> setUiTheme(uiDark() ? 'light' : 'dark'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ sync(); kick(); });
+
+// Drag and drop
+const drop = document.getElementById('drop'), dropText = document.getElementById('dropText');
+let dragDepth = 0;
+stage.addEventListener('dragenter',e=>{ e.preventDefault(); dragDepth++; drop.hidden=false; dropText.textContent='Drop an image or video to use its shapes'; });
+stage.addEventListener('dragover',e=>e.preventDefault());
+stage.addEventListener('dragleave',()=>{ if(--dragDepth<=0){ dragDepth=0; sync(); } });
+stage.addEventListener('drop',e=>{
+  e.preventDefault(); dragDepth=0; sync();
+  const f=e.dataTransfer.files[0]; if(!f) return;
+  loadSource(f); setPreset('source');
+});
+
+// Copy / import
+document.getElementById('copy').addEventListener('click', async ()=>{
+  const txt = JSON.stringify(config(), null, 2);
+  try{ await navigator.clipboard.writeText(txt); say('Config copied'); }
+  catch{
+    const d = document.querySelector('#cfg').closest('details'); d.open = true;
+    const r=document.createRange(); r.selectNodeContents(document.getElementById('cfg')); const s=getSelection(); s.removeAllRanges(); s.addRange(r);
+    say('Config selected. Press Ctrl+C or ⌘C to copy it.');
+  }
+});
+document.getElementById('importApply').addEventListener('click',()=>{
+  const help = document.getElementById('importHelp'), field = document.getElementById('importText');
+  try{
+    const recoloured = applyConfig(parseConfig(field.value));
+    help.classList.remove('error'); field.removeAttribute('aria-invalid');
+    help.textContent = 'Paste a config copied from this page or from a *-config.js file.';
+    document.getElementById('importBox').open = false;
+    if(S.preset==='source' && !SRC.media) say('Config applied. Choose the source image again to see it.');
+    else say(recoloured ? 'Config applied with Kilowatt colours. Its old ramp and green accent were replaced.' : 'Config applied');
+  }catch(e){
+    help.classList.add('error'); field.setAttribute('aria-invalid','true');
+    help.textContent = e instanceof SyntaxError ? 'Couldn’t read that config. Check that it was pasted in full.' : e.message;
+  }
+});
 
 function sync(){
-  const P = palette();
-  const rp = document.getElementById('rampPreview'); rp.innerHTML='';
-  P.tones.forEach(c=>{ const d=document.createElement('div'); d.style.background=c; d.innerHTML='<span>'+c+'</span>'; rp.appendChild(d); });
-  const a=document.createElement('div'); a.style.background=P.accent; a.innerHTML='<span>'+P.accent+'</span>'; rp.appendChild(a);
-  document.getElementById('tag').textContent = S.preset+' · '+(S.ramp==='deep'?'navy→brand':'brand only')+' · '+(isDark()?'dark':'light');
-  const cfg = { composition:S.preset, seed, grid:{cell:S.cell, maxDot:S.dot, baseDot:S.floor}, field:{scale:S.scale, contrast:S.contrast, toneSteps:S.steps, speed:S.speed},
-    ...(S.preset==='source' ? { source: bakeSource() } : {}),
-    color:{ ramp:S.ramp, accentRate:S.accent/100, dark:RAMPS[S.ramp].dark, light:RAMPS[S.ramp].light } };
-  document.getElementById('cfg').textContent = JSON.stringify(cfg,null,2);
+  const v = view();
+  stage.dataset.view = v;
+  document.querySelectorAll('.toggle').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.view===v)));
+  const dark = uiDark();
+  uiBtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  uiBtn.querySelector('.icon').textContent = dark ? 'light_mode' : 'dark_mode';
+  document.getElementById('svgLabel').textContent = v==='compare' ? 'Download SVGs' : 'Download SVG';
+
+  const used = new Set(stepIndexes());
+  document.getElementById('seq').innerHTML = ['light','dark'].map(theme =>
+    `<div class="seq-row scheme-${theme}"><span>${theme==='light'?'Light':'Dark'}</span>` +
+    [0,1,2,3,4].map(k=>`<i class="${used.has(k)?'':'unused'}" style="background:var(--mui-palette-chart-sequential-${k})" title="chart.sequential.${k}${used.has(k)?'':' (not used at this step count)'}"></i>`).join('') +
+    `</div>`).join('');
+
+  if(!dragDepth){
+    const empty = S.preset==='source' && !SRC.media;
+    drop.hidden = !empty;
+    dropText.textContent = empty ? 'Choose a file in Source, or drop an image or video here' : 'Drop an image or video to use its shapes';
+  }
+  const src = S.preset==='source' ? (SRC.name ? ' · '+SRC.name : ' · no file yet') : '';
+  document.getElementById('meta').textContent = `${NAMES[S.preset]}${src} · seed ${seed}`;
+  document.getElementById('cfg').textContent = JSON.stringify(config(), null, 2);
 }
 sync();
 </script>

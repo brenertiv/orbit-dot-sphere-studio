@@ -7,8 +7,8 @@ export interface DotFieldPalette {
   tones: string[];
   /** Fill for the faint scaffolding dots where the field is empty. */
   grid: string;
-  /** Sparse decorative accent (green). */
-  accent: string;
+  /** Optional decorative accent. Kilowatt configs have none. */
+  accent?: string;
 }
 
 export interface DotFieldConfig {
@@ -16,7 +16,8 @@ export interface DotFieldConfig {
   seed: number;
   grid: { cell: number; maxDot: number; baseDot: number };
   field: { scale: number; contrast: number; toneSteps: number; speed: number };
-  color: { ramp: 'deep' | 'bright'; accentRate: number; dark: DotFieldPalette; light: DotFieldPalette };
+  /** Kilowatt configs use palette "chart.sequential"; older configs carry ramp and accentRate. */
+  color: { palette?: 'chart.sequential'; ramp?: 'deep' | 'bright'; accentRate?: number; dark: DotFieldPalette; light: DotFieldPalette };
   /** Only for composition "source": a baked luminance grid (0–255), row-major. */
   source?: { cols: number; rows: number; data: number[]; noiseMix?: number; invert?: boolean; file?: string | null };
 }

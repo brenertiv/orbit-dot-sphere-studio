@@ -58,13 +58,15 @@ export function createDotField(canvas, config, opts = {}) {
     return out;
   }
 
+  // The accent is optional: configs coloured from chart.sequential have none.
+  const accentOf = (p) => p.accent || p.grid;
   function palette() {
     const cur = cfg.color[theme];
-    if (!from || blend >= 1) return { tones: cur.tones.map(hexToRgb), grid: hexToRgb(cur.grid), accent: hexToRgb(cur.accent) };
+    if (!from || blend >= 1) return { tones: cur.tones.map(hexToRgb), grid: hexToRgb(cur.grid), accent: hexToRgb(accentOf(cur)) };
     return {
       tones: cur.tones.map((c, i) => mix(hexToRgb(from.tones[i] || c), hexToRgb(c), blend)),
       grid: mix(hexToRgb(from.grid), hexToRgb(cur.grid), blend),
-      accent: mix(hexToRgb(from.accent), hexToRgb(cur.accent), blend),
+      accent: mix(hexToRgb(accentOf(from)), hexToRgb(accentOf(cur)), blend),
     };
   }
 
@@ -76,7 +78,7 @@ export function createDotField(canvas, config, opts = {}) {
     for (let i = 0; i < n; i++) tones.push(P.tones[Math.round(i * (P.tones.length - 1) / (n - 1))]);
     const cols = Math.ceil(W / cell) + 1, rows = Math.ceil(H / cell) + 1;
     const ox = (W - (cols - 1) * cell) / 2, oy = (H - (rows - 1) * cell) / 2;
-    const base = cell * 0.5 * baseDot, seed = cfg.seed, accentRate = cfg.color.accentRate || 0;
+    const base = cell * 0.5 * baseDot, seed = cfg.seed, accentRate = cfg.color[theme].accent ? (cfg.color.accentRate || 0) : 0;
     const groups = [{ fill: P.grid, dots: [] }, ...tones.map((c) => ({ fill: c, dots: [] })), { fill: P.accent, dots: [] }];
     const grid = groups[0].dots, accent = groups[groups.length - 1].dots;
     const useSrc = cfg.composition === 'source';
