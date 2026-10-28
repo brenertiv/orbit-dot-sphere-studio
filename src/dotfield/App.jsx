@@ -9,8 +9,7 @@ const ORBIT_URL = 'https://brenertiv.github.io/orbit-dot-sphere-studio/';
 const ZIP_URL = 'https://brenertiv.github.io/orbit-dot-sphere-studio/dotfield/dotfield-react.zip';
 const two = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const whole = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
-const pixels = new Intl.NumberFormat(undefined, { style: 'unit', unit: 'pixel', unitDisplay: 'narrow' });
-function formatValue(id, v) { const r = ranges[id]; return r.unit === 'px' ? pixels.format(v) : r.integer ? whole.format(v) : two.format(v); }
+function formatValue(id, v) { const r = ranges[id]; return r.unit === 'px' ? whole.format(v) + '\u00a0px' : r.integer ? whole.format(v) : two.format(v); }
 
 // ---- Live image / video sampling --------------------------------------------
 const sampler = typeof document !== 'undefined' ? document.createElement('canvas') : null;
@@ -85,7 +84,6 @@ function createClock(reduced) {
       if (paused) { since = now; base = last; return last; }
       last = base + (now - since) / 1000 * speed; return last;
     },
-    retime(speed) { base = last; since = performance.now(); return speed; },
     moving: (speed, paused) => !reduced && !paused && speed > 0,
     now: () => last,
   };
