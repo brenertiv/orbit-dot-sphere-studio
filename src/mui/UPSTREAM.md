@@ -12,3 +12,7 @@ Refresh these files from upstream together. App-specific layout belongs in
 src/App.jsx, using MUI components and semantic theme roles. Dot palette swatches
 are user design data, not UI theme colors. All Kilowatt dependencies are confined
 to the studio bundle; dist/runtime and downloaded React packages remain separate.
+
+The Dot Field generator (src/dotfield) renders under the same MuiProvider and Icon,
+and reads its illustration colours from the theme (chart.sequential, border.level2,
+background.level0), so refreshing these files recolours it too.

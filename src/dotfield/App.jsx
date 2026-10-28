@@ -6,7 +6,8 @@ import { fieldFrame, toneIndexes } from '../../exports/dotfield/dotfield.js';
 import { colorsFromTheme, compositions, defaults, fromConfig, parseConfig, ranges, toConfig, toSVG } from './config';
 
 const ORBIT_URL = 'https://brenertiv.github.io/orbit-dot-sphere-studio/';
-const ZIP_URL = 'https://brenertiv.github.io/orbit-dot-sphere-studio/dotfield/dotfield-react.zip';
+const DOTFIELD_URL = 'https://brenertiv.github.io/orbit-dot-sphere-studio/dotfield/';
+const ZIP_URL = DOTFIELD_URL + 'dotfield-react.zip';
 const two = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const whole = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
 function formatValue(id, v) { const r = ranges[id]; return r.unit === 'px' ? whole.format(v) + '\u00a0px' : r.integer ? whole.format(v) : two.format(v); }
@@ -208,7 +209,7 @@ export function App() {
   };
   const range = id => <Range key={id} id={id} value={state[id]} onChange={v => change({ [id]: v })} />;
   const used = new Set(toneIndexes(5, state.steps));
-  const meta = `${name}${state.composition === 'source' ? ' · ' + (media?.name || source.file || 'no file yet') : ''} · seed ${whole.format(state.seed)}`;
+  const meta = `${name}${state.composition === 'source' ? ' · ' + (media?.name || source.file || 'no file yet') : ''} · seed ${state.seed}`;
 
   return <>
     {/* Same phone tap targets as the Orbit editor; the upstream theme stays unchanged. */}
@@ -218,10 +219,10 @@ export function App() {
     })} />
     <AppBar position="static" color="default" elevation={0} sx={{ bgcolor: 'background.level2', borderBottom: 1, borderColor: 'divider' }}>
       <Toolbar sx={{ gap: 2, flexWrap: 'wrap' }}>
-        <Typography variant="h5" component="a" href="./" sx={{ color: 'text.primary', textDecoration: 'none' }}>Dot Field</Typography>
-        <Tabs value="dotfield" aria-label="Studio tools" sx={{ alignSelf: 'stretch', '& .MuiTabs-flexContainer': { height: '100%' } }}>
+        <Typography variant="h5" component="a" href={DOTFIELD_URL} sx={{ color: 'text.primary', textDecoration: 'none' }}>Dot Field</Typography>
+        <Tabs value="dotfield" aria-label="Studio tools" sx={{ alignSelf: 'flex-end' }}>
           <Tab value="orbit" label="Orbit" component="a" href={ORBIT_URL} />
-          <Tab value="dotfield" label="Dot Field" component="a" href="./" aria-current="page" />
+          <Tab value="dotfield" label="Dot Field" component="a" href={DOTFIELD_URL} aria-current="page" />
         </Tabs>
         <Box sx={{ flex: 1 }} />
         <Tooltip title={'Switch to ' + (editorMode === 'light' ? 'dark' : 'light') + ' mode'}>
