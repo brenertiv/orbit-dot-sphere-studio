@@ -114,6 +114,8 @@ export function createSphere(canvas, config, options = {}) {
   }
   function reconcile() {
     if(frame) cancelAnimationFrame(frame);frame=0;last=0;
+    // A preference change must also stop a palette transition already in progress.
+    if(motionQuery.matches) fromPalette=null;
     if(visible && !document.hidden) draw(performance.now());schedule();
   }
   function themeChanged() { if(opts.theme==='system') {setPalette(true);reconcile();} }

@@ -40,7 +40,7 @@
           <label class="range-label" for="connections">Connections <output id="connections-value">2</output></label><input type="range" id="connections" min="0" max="3" step="1">
           <label class="range-label" for="lineOpacity">Line opacity <output id="lineOpacity-value">16%</output></label><input type="range" id="lineOpacity" min="0" max="0.45" step="0.01">
         </div>
-        <div class="control-section"><div class="section-title"><span>02</span><h3>Motion</h3><span class="section-tag">LIVE</span></div>
+        <div class="control-section"><div class="section-title"><span>02</span><h3>Motion</h3><span class="section-tag" id="motion-status">LIVE</span></div>
           <label class="range-label" for="speed">Rotation <output id="speed-value">0.24</output></label><input type="range" id="speed" min="0" max="0.8" step="0.01">
           <label class="range-label" for="deformation">Drift <output id="deformation-value">12%</output></label><input type="range" id="deformation" min="0" max="0.3" step="0.01">
           <label class="range-label" for="pulse">Shimmer <output id="pulse-value">13%</output></label><input type="range" id="pulse" min="0" max="0.5" step="0.01">
@@ -75,8 +75,9 @@
         <div class="stage" id="stage" data-view="dark">
           <div class="stage-pane dark-pane"><span class="stage-label">DARK APPEARANCE</span><canvas id="dark-canvas" aria-hidden="true"></canvas></div>
           <div class="stage-pane light-pane"><span class="stage-label">LIGHT APPEARANCE</span><canvas id="light-canvas" aria-hidden="true"></canvas></div>
-          <div class="stage-footer"><span id="stage-caption">CONSTELLATION / 001</span><button id="pause" data-icon-state="default" aria-label="Pause animation" title="Pause animation"><span class="icon-swap" aria-hidden="true"><span class="icon-default"><svg class="ui-icon icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 5v14M16 5v14"/></svg></span><span class="icon-alternate"><svg class="ui-icon icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m7 4 12 8-12 8Z"/></svg></span></span></button></div>
-          <div class="reduced-note" id="reduced-note" hidden>Static preview · reduced motion enabled</div>
+          <div class="stage-footer"><span id="stage-caption">CONSTELLATION / 001</span><button id="pause" data-icon-state="default" aria-label="Pause animation" title="Pause animation"><span class="icon-swap" aria-hidden="true"><span class="icon-default"><svg class="ui-icon icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 5v14M16 5v14"/></svg></span><span class="icon-alternate"><svg class="ui-icon icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m7 4 12 8-12 8Z"/></svg></span></span></button>
+            <div class="reduced-note" id="reduced-note" hidden>Static preview · reduced motion enabled</div>
+          </div>
         </div>
         <div class="preview-meta"><div><span id="dots-stat">560</span> dots <span class="meta-divider">/</span> <span id="links-stat">0</span> connections</div><div><i class="status-dot"></i><span id="render-stat">Canvas 2D</span><span class="meta-divider">/</span> No dependencies</div></div>
         <div class="preset-heading"><h2>A starting point</h2><span>Pick a mood. Make it your own.</span></div>

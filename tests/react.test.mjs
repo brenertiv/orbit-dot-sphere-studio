@@ -14,6 +14,48 @@ test('server rendering uses no browser APIs',()=>{
   assert.match(html,/aria-hidden="true"/);assert.match(html,/<canvas/);
 });
 
+test('reduced motion starts static and cancels an in-flight palette transition immediately',()=>{
+  const dom=new JSDOM('<canvas></canvas>');
+  globalThis.window=dom.window;globalThis.document=dom.window.document;
+  Object.defineProperty(document,'hidden',{value:false});
+  const queries=new Map(),frames=new Map();let frameId=0,draws=0;
+  globalThis.matchMedia=query=>{
+    if(!queries.has(query))queries.set(query,{
+      matches:query.includes('reduced-motion'),listeners:new Set(),
+      addEventListener(_,fn){this.listeners.add(fn);},
+      removeEventListener(_,fn){this.listeners.delete(fn);}
+    });
+    return queries.get(query);
+  };
+  globalThis.requestAnimationFrame=fn=>{frames.set(++frameId,fn);return frameId;};
+  globalThis.cancelAnimationFrame=id=>frames.delete(id);
+  globalThis.ResizeObserver=class{observe(){}disconnect(){}};
+  globalThis.IntersectionObserver=ResizeObserver;
+  const ctx={setTransform(){},clearRect(){draws++;},beginPath(){},moveTo(){},lineTo(){},stroke(){},arc(){},fill(){}};
+  const canvas=document.querySelector('canvas');
+  canvas.getContext=()=>ctx;canvas.getBoundingClientRect=()=>({width:320,height:320});
+  const instance=createSphere(canvas,prepareDesign(presets.waveform),{theme:'dark'});
+  const reduced=queries.get('(prefers-reduced-motion: reduce)');
+  const setReduced=value=>{reduced.matches=value;reduced.listeners.forEach(fn=>fn());};
+  try{
+    assert.ok(draws>0,'initial reduced-motion render still draws the design');
+    assert.equal(frames.size,0,'no autoplay under reduced motion');
+    const phase=instance.getState(),before=draws;
+    instance.update(prepareDesign(presets.reference),{theme:'light'});
+    assert.ok(draws>before,'editing and theme changes redraw a static preview');
+    assert.equal(frames.size,0);assert.deepEqual(instance.getState(),phase);
+    setReduced(false);assert.equal(frames.size,1,'motion resumes when allowed');
+    instance.update(null,{theme:'dark'});
+    assert.equal(frames.size,1,'palette transition is pending');
+    setReduced(true);
+    assert.equal(frames.size,0,'a pending palette transition must stop immediately');
+    assert.equal(ctx.strokeStyle,'rgb(139,158,171)','reduced motion snaps to the target Aurora palette');
+    instance.update(null,{paused:true});setReduced(false);
+    assert.equal(frames.size,0,'turning reduced motion off preserves an explicit pause');
+  }finally{instance.destroy();dom.window.close();}
+  assert.ok([...queries.values()].every(q=>q.listeners.size===0));
+});
+
 test('React Strict Mode, themes, pause, reduced motion, visibility, and cleanup',async()=>{
   const dom=new JSDOM('<div id="root"></div>');
   globalThis.window=dom.window;globalThis.document=dom.window.document;globalThis.IS_REACT_ACT_ENVIRONMENT=true;

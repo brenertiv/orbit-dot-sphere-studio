@@ -73,3 +73,55 @@ select,#preset-name,.seed-row input{border:1px solid var(--control-border)}
 #copy-code .icon-swap{width:14px;height:14px}
 @media(max-width:720px){.header .button:has(>.ui-icon:first-child){padding-inline-start:11px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}button:enabled:not([data-static]):active{scale:1}}
+
+/* Keep captions and the reduced-motion notice in separate, wrapping rows. */
+.stage-pane{padding-bottom:66px}
+.stage:has(.reduced-note:not([hidden])) .stage-pane{padding-bottom:90px}
+.stage-footer{flex-wrap:wrap;gap:8px 12px}
+#stage-caption{flex:1;min-width:0;overflow-wrap:anywhere}
+#pause{flex-shrink:0}
+.stage-footer .reduced-note{position:static;transform:none;flex-basis:100%;white-space:normal;line-height:1.5}
+dialog{overscroll-behavior:contain}
+
+/* Phone controls keep their compact appearance with room to tap and reflow. */
+@media(max-width:720px){
+  .header{height:auto;min-height:70px;gap:8px;padding-block:10px}
+  .brand{font-size:24px;gap:6px;flex-shrink:0}
+  .brand>svg{width:28px;height:28px}
+  .header-actions{gap:8px;flex-shrink:0}
+  .header .button{min-height:44px;gap:7px;padding-inline:10px;white-space:nowrap}
+  .header .icon-button,.icon-button,.seed-row .icon-button{width:44px;height:44px;flex-shrink:0}
+  .button,.my-presets .button,.text-button{min-height:44px}
+  .text-button{padding-inline:6px}
+  .preview-toolbar{height:auto;min-height:44px;flex-wrap:wrap;gap:10px}
+  .segmented{flex:1;justify-content:space-between}
+  .segmented button{min-width:44px;min-height:44px;padding-inline:12px;font-size:11px}
+  .stage{height:clamp(280px,90vw,390px)}
+  #pause{width:44px;height:44px}
+  .preview-meta{flex-wrap:wrap;gap:8px 12px;font-size:10px;line-height:1.5}
+  .preset-heading{flex-wrap:wrap;gap:8px 12px}
+  .preset{gap:9px}
+  .preset>span{min-width:0;overflow-wrap:anywhere}
+  .preset strong{font-size:12px;padding-inline-end:10px}
+  .preset small{font-size:10px}
+  .custom-preset small{overflow-wrap:anywhere}
+  .select-label,.range-label,.palette-heading,.seed-row{font-size:12px}
+  select,.seed-row input,#preset-name{font-size:16px;min-height:44px}
+  input[type=range]{height:44px}
+  input[type=range]::-webkit-slider-thumb{width:18px;height:18px;margin-top:-7.5px}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px}
+  .advanced-motion summary{min-height:44px;font-size:12px}
+  .single-color{flex-wrap:wrap}
+  .single-color input{width:44px;height:44px}
+  .export-facts,.file-list>div{flex-wrap:wrap;gap:6px 12px}
+  .file-list>div>span:first-child{overflow-wrap:anywhere}
+  dialog{padding:18px}
+  .download{gap:8px;padding:10px 12px;text-align:start}
+  #download-label{min-width:0;overflow-wrap:anywhere}
+  footer>div{flex-wrap:wrap;gap:8px 16px}
+}
+@media(max-width:420px){
+  .preview-title{width:100%}
+  .preset-grid{grid-template-columns:1fr}
+  .preset canvas{width:56px;height:56px}
+}

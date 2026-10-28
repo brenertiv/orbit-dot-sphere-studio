@@ -46,8 +46,15 @@ $('seed').addEventListener('change',()=>{const value=Number($('seed').value);if(
 $('randomize').addEventListener('click',()=>{settings.seed=crypto.getRandomValues(new Uint32Array(1))[0];$('seed').value=settings.seed;refreshGeometry();});
 $('reset').addEventListener('click',()=>{settings=validateSettings(selectedSnapshot());syncControls();refreshGeometry();notify('Saved preset restored.');});
 document.querySelectorAll('[data-view]').forEach(button=>{if(button.tagName!=='BUTTON')return;button.addEventListener('click',()=>{const seconds=(view==='light'?light:dark).getState();view=button.dataset.view;$('stage').dataset.view=view;dark.seek(seconds);light.seek(seconds);document.querySelectorAll('button[data-view]').forEach(el=>el.setAttribute('aria-pressed',String(el===button)));});});
-$('pause').addEventListener('click',()=>{paused=!paused;dark.update(null,{paused});light.update(null,{paused});$('pause').dataset.iconState=paused?'alternate':'default';$('pause').setAttribute('aria-label',paused?'Play animation':'Pause animation');$('pause').title=paused?'Play animation':'Pause animation';});
-const reduced=matchMedia('(prefers-reduced-motion: reduce)');function updateReduced(){ $('reduced-note').hidden=!reduced.matches;$('pause').hidden=reduced.matches;}reduced.addEventListener('change',updateReduced);updateReduced();
+$('pause').addEventListener('click',()=>{paused=!paused;dark.update(null,{paused});light.update(null,{paused});$('pause').dataset.iconState=paused?'alternate':'default';$('pause').setAttribute('aria-label',paused?'Play animation':'Pause animation');$('pause').title=paused?'Play animation':'Pause animation';updateReduced();});
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+function updateReduced(){
+  $('reduced-note').hidden=!reduced.matches;
+  $('pause').hidden=reduced.matches;
+  $('motion-status').textContent=reduced.matches?'STATIC':paused?'PAUSED':'LIVE';
+  $('render-stat').textContent=reduced.matches?'Static preview':paused?'Paused':'Canvas 2D';
+}
+reduced.addEventListener('change',updateReduced);updateReduced();
 // Commit theme colors together, without starting every hover transition at once.
 $('app-theme').addEventListener('click',()=>{
   const override=document.createElement('style');
