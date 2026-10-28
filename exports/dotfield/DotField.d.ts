@@ -40,3 +40,10 @@ export interface DotFieldInstance {
   destroy(): void;
 }
 export function createDotField(canvas: HTMLCanvasElement, config: DotFieldConfig, opts?: { theme?: 'light' | 'dark'; paused?: boolean }): DotFieldInstance;
+
+export type DotFieldGroup = { name: string; fill: string; dots: number[] };
+/** One frame without drawing it: circles grouped by fill, as flat [x, y, r, …] lists. */
+export function fieldFrame(config: DotFieldConfig, width: number, height: number, time: number, palette: DotFieldPalette, luminance?: (cols: number, rows: number) => Float32Array | null): DotFieldGroup[];
+export function toneIndexes(count: number, steps: number): number[];
+export function bakedLuminance(source: DotFieldConfig['source'], cols: number, rows: number): Float32Array | null;
+export const COMPOSITIONS: Record<Exclude<Composition, 'source'>, (u: number, v: number, t: number, scale: number, seed: number) => number>;

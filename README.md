@@ -71,9 +71,13 @@ The default reference export measured 13,136 bytes gzipped for renderer + wrappe
 
 ## Dot Field
 
-A second generator lives at `dist/dotfield/` (served at `/dotfield/`): round dots on a fixed grid, sized and toned by a slow noise field or a supplied image/video, in the Navy→Brand or Brand-only ramp with a sparse decorative Green accent. It exports SVG stills and a config object.
+A second generator lives at `src/dotfield/` and is built to `dist/dotfield/` (served at `/dotfield/`): round dots on a fixed grid, sized and toned by a slow noise field or a supplied image or video. Like the Orbit editor, it renders with React and MUI under the vendored Kilowatt theme (`src/mui`) and Kilowatt's `Icon`.
 
-The React package is in `exports/dotfield/` (also downloadable from the page as `dotfield-react.zip`). Copy the `dotfield` folder into an app, paste a copied config as `export default { … }`, and render `<DotField config={…} theme="system" />`. See `exports/dotfield/README.md`.
+- **Colours come from the theme.** Dots use `chart.sequential` (light to dark in light, reversed in dark), the background grid uses `border.level2`, and previews and SVG backgrounds use each scheme's `background.level0`. Refreshing `src/mui` from upstream recolours the illustrations with it.
+- **The preview draws what ships.** The editor calls `fieldFrame` from `exports/dotfield/dotfield.js`, the same function the exported component draws with.
+- **Editor logic without React** lives in `src/dotfield/config.js` (state ↔ config, parsing pasted configs, SVG) and is covered by `tests/dotfield.test.mjs`.
+
+It exports SVG stills (light, dark or both) and a config object. The React package is in `exports/dotfield/` (also downloadable from the page as `dotfield-react.zip`). Copy the `dotfield` folder into an app, paste a copied config as `export default { … }`, and render `<DotField config={…} theme="system" />`. See `exports/dotfield/README.md`.
 
 ## GitHub Pages
 
