@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { writeFile } from 'node:fs/promises';
+import { writeFile, mkdir, copyFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 const result=await build({
@@ -11,4 +11,7 @@ const result=await build({
   }}]
 });
 await writeFile(join(tmpdir(),'orbit-build-meta.json'),JSON.stringify(result.metafile));
-console.log('Built Kilowatt Studio (Orbit + Field) → dist/studio.js. Runtime/export modules remain separate.');
+// The Icon tab zips the OrbitIcon component with the current design; it fetches these sources at export time.
+await mkdir('dist/orbit-icon',{recursive:true});
+for(const name of ['orbitIcon.js','OrbitIcon.jsx','OrbitIcon.d.ts'])await copyFile('exports/orbiticon/'+name,'dist/orbit-icon/'+name);
+console.log('Built Kilowatt Studio (Orbit + Field + Icon) → dist/studio.js. Runtime/export modules remain separate.');

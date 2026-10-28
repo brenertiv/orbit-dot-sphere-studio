@@ -4,6 +4,7 @@ Two editors for Enertiv's decorative dot illustrations, in one app with an **Orb
 
 - **Orbit** (`#orbit`) — animated dot spheres, ellipsoids and tori. Described below.
 - **Field** (`#field`) — round dots on a fixed grid, coloured with Kilowatt's `chart.sequential`. See [Field](#field).
+- **Icon** (`#icon`) — the small animated Orbit avatar for the chat, with idle and thinking states. See [Icon](#icon).
 
 `src/Studio.jsx` is the shell: the app bar, the tool tabs (the URL hash names the open tool) and the light/dark toggle. Both tools stay mounted, so switching tabs keeps their settings; the hidden tool stops animating. The repository keeps its original name.
 
@@ -88,9 +89,18 @@ Field lives in `src/dotfield/` and renders as the `#field` tab: round dots on a 
 
 It exports SVG stills (light, dark or both) and a config object. The React package is in `exports/dotfield/`. Copy the `dotfield` folder into an app, paste a copied config as `export default { … }`, and render `<DotField config={…} theme="system" />`. See `exports/dotfield/README.md`.
 
+## Icon
+
+The Icon tab (`src/icon/`) designs Enertiv's animated chat avatar: three great circles that share a horizontal axis and meet at the left and right points. Their rings pivot on that axis while dots drift along them. Dot size follows each dot's position on screen (small at the left, large at the right); depth sets tone and fade. Colours come from `chart.sequential`.
+
+- **Two states.** Idle swings the rings (they rock on the axis); thinking spins them (they keep turning, middle ring reversed). Each state has its own motion, amount, direction and drift, and the component blends between them over the blend time. Loops are seamless.
+- **Built for 32 px.** The preview shows 192, 96, 64, 48 and 32 px and a chat row. A smallest-dot size keeps far-left dots visible, and an optional no-overlap rule stops dots clumping where the rings meet.
+- **One renderer.** `exports/orbiticon/orbitIcon.js` (`createOrbitIcon`, `iconFrame`) draws the preview, the exported component and every file export. The build copies it to `dist/orbit-icon/` so the editor can zip it.
+- **Exports.** The `OrbitIcon` React component (zip with the current design; `state="idle" | "thinking"`); an animated SVG per state that plays as a plain image; an animated GIF per state on a solid Kilowatt surface (`src/icon/gif.js`, a small encoder with a fixed palette); a still PNG or SVG. Logic is covered by `tests/icon.test.mjs`.
+
 ## GitHub Pages
 
-`.github/workflows/pages.yml` publishes `dist/` on every push to `main`. Enable it once under Settings → Pages → Build and deployment → Source: GitHub Actions. Kilowatt Studio is then at the site root: Orbit at `#orbit`, Field at `#field`.
+`.github/workflows/pages.yml` publishes `dist/` on every push to `main`. Enable it once under Settings → Pages → Build and deployment → Source: GitHub Actions. Kilowatt Studio is then at the site root: Orbit at `#orbit`, Field at `#field`, Icon at `#icon`.
 
 ## Hosting
 

@@ -79,10 +79,10 @@ export async function measure(config) {
 const crcTable=Array.from({length:256},(_,n)=>{for(let k=0;k<8;k++)n=(n&1)?0xedb88320^(n>>>1):n>>>1;return n>>>0;});
 function crc32(bytes){let n=0xffffffff;for(const b of bytes)n=crcTable[(n^b)&255]^(n>>>8);return(n^0xffffffff)>>>0;}
 // Stored ZIP, kept inside the editor only. No external download service or ZIP dependency.
-export function createZip(files) {
+export function createZip(files,folder='orbit') {
   const encoder=new TextEncoder(),chunks=[],central=[];let offset=0,centralSize=0;
   for(const [name,text] of Object.entries(files)) {
-    const filename=encoder.encode('orbit/'+name),content=encoder.encode(text),crc=crc32(content);
+    const filename=encoder.encode(folder+'/'+name),content=encoder.encode(text),crc=crc32(content);
     const local=new Uint8Array(30+filename.length),v=new DataView(local.buffer);
     v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x0800,true);v.setUint16(12,33,true);v.setUint32(14,crc,true);v.setUint32(18,content.length,true);v.setUint32(22,content.length,true);v.setUint16(26,filename.length,true);local.set(filename,30);
     const record=new Uint8Array(46+filename.length),c=new DataView(record.buffer);

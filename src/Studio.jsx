@@ -4,11 +4,13 @@ import { useColorScheme } from '@mui/material/styles';
 import { Icon } from './icons';
 import { OrbitView } from './App';
 import { FieldView } from './dotfield/App';
+import { IconView } from './icon/IconView';
 
-/** The tools, in tab order. The hash names the open one (#orbit, #field), so links and bookmarks open it. */
+/** The tools, in tab order. The hash names the open one (#orbit, #field, #icon), so links and bookmarks open it. */
 const tools = [
   { id: 'orbit', label: 'Orbit' },
   { id: 'field', label: 'Field' },
+  { id: 'icon', label: 'Icon' },
 ];
 const aliases = { dotfield: 'field' };
 function toolFromHash() {
@@ -71,6 +73,7 @@ export function Studio() {
     <Box component="main">
       <Box role="tabpanel" id="panel-orbit" aria-labelledby="tab-orbit" hidden={tool !== 'orbit'}><OrbitView /></Box>
       <Box role="tabpanel" id="panel-field" aria-labelledby="tab-field" hidden={tool !== 'field'}><FieldView active={tool === 'field'} /></Box>
+      <Box role="tabpanel" id="panel-icon" aria-labelledby="tab-icon" hidden={tool !== 'icon'}><IconView active={tool === 'icon'} /></Box>
     </Box>
   </>;
 }
