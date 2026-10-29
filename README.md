@@ -88,7 +88,7 @@ Field lives in `src/dotfield/` and renders as the `#field` tab: round dots on a 
 - **The preview draws what ships.** The editor calls `fieldFrame` from `exports/dotfield/dotfield.js`, the same function the exported component draws with.
 - **Editor logic without React** lives in `src/dotfield/config.js` (state ↔ config, parsing pasted configs, SVG) and is covered by `tests/dotfield.test.mjs`.
 
-It exports SVG stills (light, dark or both) and a config object. The React package is in `exports/dotfield/`. Copy the `dotfield` folder into an app, paste a copied config as `export default { … }`, and render `<DotField config={…} theme="system" />`. See `exports/dotfield/README.md`.
+It exports SVG stills (light, dark or both) and, like Orbit, has an Export React dialog (`src/ExportDialog.jsx`, shared by both): **Full Component** zips `DotField` with the current design as `field-config.js`; **Config Only** downloads one `<composition>-<seed>-config.js` to add beside an installed component. The build copies the component sources from `exports/dotfield/` to `dist/dotfield/` so the editor can zip them. See `exports/dotfield/README.md`.
 
 ## Icon
 

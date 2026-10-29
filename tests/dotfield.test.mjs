@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fieldFrame, toneIndexes, bakedLuminance } from '../exports/dotfield/dotfield.js';
-import { defaults, fromConfig, parseConfig, ranges, toConfig, toSVG } from '../src/dotfield/config.js';
+import { configFile, configSource, defaults, fromConfig, parseConfig, ranges, toConfig, toSVG } from '../src/dotfield/config.js';
 
 const sequential = { light: { tones: ['#b9e1f5', '#74c4eb', '#2ea6e1', '#1c6487', '#09212d'], grid: '#d6dee8', surface: '#edf1f5' },
   dark: { tones: ['#09212d', '#1c6487', '#2ea6e1', '#74c4eb', '#b9e1f5'], grid: '#0a374a', surface: '#09161c' } };
@@ -72,4 +72,22 @@ test('SVG export layers each group on the scheme surface', () => {
   assert.match(svg, /<rect id="background" width="200" height="150" fill="#09161c"\/>/);
   assert.match(svg, /<g id="tone-1" fill="#09212d">/);
   assert.equal((svg.match(/<circle /g) || []).length, groups.reduce((n, g) => n + g.dots.length / 3, 0));
+});
+
+test('config-only downloads are named after the composition and seed', () => {
+  const { file, id, usage } = configFile({ ...defaults, composition: 'tide', seed: 4219 });
+  assert.equal(file, 'tide-4219-config.js'); assert.equal(id, 'tide4219Config');
+  assert.match(usage, /import tide4219Config from '\.\/dotfield\/tide-4219-config';/);
+  assert.equal(configFile({ ...defaults, composition: 'source', seed: 7 }).file, 'image-7-config.js');
+});
+
+test('exported config modules round-trip, with baked images kept on one line', async () => {
+  const plain = toConfig(defaults, sequential, {});
+  const load = async text => (await import('data:text/javascript,' + encodeURIComponent(text))).default;
+  assert.deepEqual(await load(configSource(plain)), plain);
+  const baked = toConfig({ ...defaults, composition: 'source' }, sequential, { file: 'a.png', kind: 'image', cols: 2, rows: 2, data: [0, 64, 128, 255] });
+  const text = configSource(baked);
+  assert.match(text, /"data": \[0,64,128,255\]/);
+  assert.deepEqual(await load(text), baked);
+  assert.deepEqual(parseConfig(text), baked);
 });
