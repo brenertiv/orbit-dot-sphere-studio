@@ -20,7 +20,7 @@ npm run build
 npm run dev
 ```
 
-Open http://127.0.0.1:4173. The committed dist directory can also be served directly. Run the build after editing src/. Editable designs are autosaved to browser storage where available; Save design / Import design transfers them between browsers or origins. All design processing and ZIP creation happen locally in the browser. The editor loads Roboto and Material Symbols from Google Fonts, with local text font fallbacks; exported components make no font or asset requests.
+Open http://127.0.0.1:4173. The committed dist directory can also be served directly. Run the build after editing src/. Editable designs are autosaved to browser storage where available, and named presets keep them in this browser. All design processing and ZIP creation happen locally in the browser. The editor loads Roboto and Material Symbols from Google Fonts, with local text font fallbacks; exported components make no font or asset requests.
 
 ## Features
 
@@ -32,7 +32,7 @@ Open http://127.0.0.1:4173. The committed dist directory can also be served dire
 - Surface wave height, frequency, signed travel speed, and twist.
 - Rotation speed, X/Y/Z/tumble axis, direction, drift amount/speed, shimmer amount/speed, breathing amount/speed.
 - Light/dark/compare preview, pause, reduced motion, offscreen suspension.
-- React ZIP with TypeScript declarations and integration guide, editable design JSON, transparent PNG.
+- React ZIP with TypeScript declarations and integration guide, transparent PNG.
 - Gzip size estimate includes runtime, React wrapper, and complete prepared design, excluding React itself.
 
 ## Design system
@@ -55,7 +55,7 @@ Presets and drafts do not sync across devices or origins. Clearing site data rem
 
 Outer radius scales every shape. Ellipsoid width, height, and depth are relative proportions; the longest axis is fitted to the chosen outer radius. Torus thickness is the tube radius divided by the ring centerline radius (10–70%); increasing it closes the hole while preserving the outer radius. Tube depth flattens the ring along Z. Filled and layered arrangements fill the tube, preserving the hole. All four point patterns work with every shape.
 
-Shape settings live only in the editor, custom presets, drafts, and editable design JSON. The generator bakes the selected geometry and connections into the existing export format. No shape code or dependencies are added to the runtime. Existing designs without shape fields remain spheres with identical exported coordinates. Motion operates on the prepared points: waves displace radially from the object center, and twist is around Y.
+Shape settings live only in the editor, custom presets and drafts. The generator bakes the selected geometry and connections into the existing export format. No shape code or dependencies are added to the runtime. Existing designs without shape fields remain spheres with identical exported coordinates. Motion operates on the prepared points: waves displace radially from the object center, and twist is around Y.
 
 ## Source boundaries
 
