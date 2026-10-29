@@ -89,7 +89,7 @@ export function OrbitView() {
   const [presetDialog,setPresetDialog]=useState(null),[name,setName]=useState(''),[nameError,setNameError]=useState('');
   const [waveOpen,setWaveOpen]=useState(false),[seed,setSeed]=useState(String(settings.seed)),[seedError,setSeedError]=useState('');
   const [geometry,setGeometry]=useState(()=>prepareDesign(settings));
-  const dark=useRef(),light=useRef(),darkCanvas=useRef(),lightCanvas=useRef(),importInput=useRef(),nameInput=useRef(),copyTimer=useRef(),previousView=useRef(view);
+  const dark=useRef(),light=useRef(),darkCanvas=useRef(),lightCanvas=useRef(),nameInput=useRef(),copyTimer=useRef(),previousView=useRef(view);
   const key=JSON.stringify(geometryKeys.map(id=>settings[id]));
   useEffect(()=>{const timer=setTimeout(()=>setGeometry(prepareDesign(settings)),75);return()=>clearTimeout(timer);},[key]);
   const design=useMemo(()=>({...geometry,appearance:{size:settings.size,lineOpacity:settings.lineOpacity,depth:settings.depth},motion:motionFromSettings(settings),themes:themesFromSettings(settings)}),[geometry,settings]);
@@ -111,7 +111,6 @@ export function OrbitView() {
   function commitSeed(){const value=Number(seed);if(!seed.trim()||!Number.isInteger(value)||value<0||value>4294967295){setSeedError('Use a whole number from 0 to 4294967295.');return;}change({seed:value});setSeedError('');}
   async function exportReact(){setBusy(true);try{const files=await exportFiles(prepareDesign(settings));download(createZip(files),'orbit-react.zip');notify('React component downloaded.');}catch(error){notify(error.message,'error');}finally{setBusy(false);}}
   async function copyCode(){try{await navigator.clipboard.writeText(usage);setCopied(true);clearTimeout(copyTimer.current);copyTimer.current=setTimeout(()=>setCopied(false),2000);}catch{notify('Copy is unavailable. Select the code and copy it with your keyboard.','error');}}
-  async function importDesign(e){const file=e.target.files[0];if(!file)return;try{if(file.size>100000)throw new Error('Design file is too large. Choose an Orbit design JSON.');store.importDesign(JSON.parse(await file.text()));setWaveOpen(true);notify('Design imported.');}catch(error){notify(error.message||'Could not import this design.','error');}finally{e.target.value='';}}
   function savePNG(){const target=view==='light'?lightCanvas:darkCanvas,renderer=view==='light'?light:dark;renderer.current?.update(prepareDesign(settings),{paused});target.current?.toBlob(blob=>{if(blob){download(blob,'orbit-'+(view==='light'?'light':'dark')+'.png');notify(view==='compare'?'Dark preview saved as transparent PNG.':'Transparent PNG saved.');}else notify('Could not save the preview.','error');});}
   const range=id=><Range key={id} id={id} settings={settings} change={change}/>;
   const select=id=><SelectField key={id} id={id} settings={settings} change={change}/>;
@@ -134,9 +133,10 @@ export function OrbitView() {
               <PreviewPane appearance="light" design={design} paused={paused} renderer={light} canvas={lightCanvas} visible={view!=='dark'}/>
             </Box>
             <CardContent>
-              <Stack direction="row" sx={{alignItems:"center",justifyContent:"space-between",gap:2}}>
+              <Stack direction="row" useFlexGap sx={{alignItems:"center",justifyContent:"space-between",flexWrap:'wrap',gap:2}}>
                 <Typography variant="body2" sx={{overflowWrap:'anywhere',minWidth:0}}>{selectedName}</Typography>
                 <Stack direction="row" useFlexGap sx={{flexWrap:'wrap',gap:1}}>
+                  <Button onClick={savePNG}>Save PNG</Button>
                   {!reduced&&<Button variant="outlined" onClick={()=>setPaused(v=>!v)} aria-label={paused?'Play animation':'Pause animation'}>{paused?'Resume':'Pause'}</Button>}
                   <Button variant="contained" startIcon={<Icon name="download"/>} onClick={()=>setExportOpen(true)}>Export React</Button>
                 </Stack>
@@ -215,10 +215,8 @@ export function OrbitView() {
       </Stack></CardContent></Card>
       <Stack component="footer" direction={{xs:'column',sm:'row'}} sx={{justifyContent:"space-between",alignItems:{sm:'center'},gap:2,py:3}}>
         <Typography variant="caption" color="text.secondary">Orbit · Designs stay in your browser</Typography>
-        <Stack direction="row" useFlexGap sx={{flexWrap:"wrap",gap:1}}><Button onClick={()=>importInput.current?.click()}>Import Design</Button><Button onClick={()=>{download(new Blob([JSON.stringify(store.exportDesign(),null,2)],{type:'application/json'}),'orbit-design.json');notify('Editable design saved.');}}>Save Design</Button><Button onClick={savePNG}>Save PNG</Button></Stack>
       </Stack>
     </Container>
-    <input ref={importInput} type="file" accept="application/json,.json" hidden onChange={importDesign}/>
     <Dialog open={presetDialog!==null} onClose={()=>setPresetDialog(null)} fullWidth maxWidth="sm" aria-labelledby="preset-heading">
       <Box component="form" onSubmit={savePreset}>
         <DialogTitle id="preset-heading">{presetDialog==='rename'?'Rename Preset':'Save Preset'}</DialogTitle>
