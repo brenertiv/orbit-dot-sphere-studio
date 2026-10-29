@@ -6,7 +6,7 @@ import { createEditorStore, PRESET_KEY } from './editor-state';
 import { ranges, selects } from './fields';
 import { presets, palettes, shapes, prepareDesign, motionFromSettings, themesFromSettings } from '../dist/geometry.js';
 import { createSphere } from '../dist/runtime/sphere.js';
-import { usage, measure, exportFiles, createZip, download } from '../dist/export.js';
+import { usage, measure, exportFiles, configSource, configFile, createZip, download } from '../dist/export.js';
 
 const percent = new Set(['shapeRadius','tubeThickness','tubeDepth','lineOpacity','deformation','pulse','depth','breathing','waveHeight','sizeVariation']);
 const speeds = new Set(['speed','driftSpeed','pulseSpeed','breathSpeed','waveSpeed']);
@@ -85,7 +85,7 @@ export function OrbitView() {
   const dirty=item && JSON.stringify(item.settings)!==JSON.stringify(settings);
   const reduced=useMediaQuery('(prefers-reduced-motion: reduce)');
   const [paused,setPaused]=useState(false),[view,setView]=useState('dark'),[drawMs,setDrawMs]=useState(null);
-  const [toast,setToast]=useState(null),[exportOpen,setExportOpen]=useState(false),[busy,setBusy]=useState(false),[copied,setCopied]=useState(false),[size,setSize]=useState(null);
+  const [toast,setToast]=useState(null),[exportOpen,setExportOpen]=useState(false),[exportKind,setExportKind]=useState('component'),[busy,setBusy]=useState(false),[copied,setCopied]=useState(false),[size,setSize]=useState(null);
   const [presetDialog,setPresetDialog]=useState(null),[name,setName]=useState(''),[nameError,setNameError]=useState('');
   const [waveOpen,setWaveOpen]=useState(false),[seed,setSeed]=useState(String(settings.seed)),[seedError,setSeedError]=useState('');
   const [geometry,setGeometry]=useState(()=>prepareDesign(settings));
@@ -110,8 +110,10 @@ export function OrbitView() {
   function savePreset(e){e.preventDefault();try{presetDialog==='rename'?store.rename(name):store.save(name);setPresetDialog(null);notify(presetDialog==='rename'?'Preset renamed.':'Preset saved in this browser.');}catch(error){setNameError(error.message);nameInput.current?.focus();}}
   function commitSeed(){const value=Number(seed);if(!seed.trim()||!Number.isInteger(value)||value<0||value>4294967295){setSeedError('Use a whole number from 0 to 4294967295.');return;}change({seed:value});setSeedError('');}
   async function exportReact(){setBusy(true);try{const files=await exportFiles(prepareDesign(settings));download(createZip(files),'orbit-react.zip');notify('React component downloaded.');}catch(error){notify(error.message,'error');}finally{setBusy(false);}}
-  async function copyCode(){try{await navigator.clipboard.writeText(usage);setCopied(true);clearTimeout(copyTimer.current);copyTimer.current=setTimeout(()=>setCopied(false),2000);}catch{notify('Copy is unavailable. Select the code and copy it with your keyboard.','error');}}
+  function downloadConfig(){try{download(new Blob([configSource(prepareDesign(settings))],{type:'text/javascript'}),configTarget.file);notify('Config downloaded.');}catch(error){notify(error.message,'error');}}
+  async function copyCode(){try{await navigator.clipboard.writeText(snippet);setCopied(true);clearTimeout(copyTimer.current);copyTimer.current=setTimeout(()=>setCopied(false),2000);}catch{notify('Copy is unavailable. Select the code and copy it with your keyboard.','error');}}
   function savePNG(){const target=view==='light'?lightCanvas:darkCanvas,renderer=view==='light'?light:dark;renderer.current?.update(prepareDesign(settings),{paused});target.current?.toBlob(blob=>{if(blob){download(blob,'orbit-'+(view==='light'?'light':'dark')+'.png');notify(view==='compare'?'Dark preview saved as transparent PNG.':'Transparent PNG saved.');}else notify('Could not save the preview.','error');});}
+  const configTarget=configFile(selectedName),snippet=exportKind==='config'?configTarget.usage:usage;
   const range=id=><Range key={id} id={id} settings={settings} change={change}/>;
   const select=id=><SelectField key={id} id={id} settings={settings} change={change}/>;
   const measured=size?number.format(size.bytes/1024)+' KB'+(size.compressed?' gzipped':' uncompressed'):'Measuring…';
@@ -227,16 +229,24 @@ export function OrbitView() {
       </Box>
     </Dialog>
     <Dialog open={exportOpen} onClose={()=>setExportOpen(false)} fullWidth maxWidth="sm" aria-labelledby="export-heading">
-      <DialogTitle id="export-heading">Export React Component</DialogTitle>
+      <DialogTitle id="export-heading">Export React</DialogTitle>
       <DialogContent>
-        <DialogContentText>Drop these files into your React app. The editor and design-system dependencies stay here.</DialogContentText>
-        <Stack direction="row" useFlexGap sx={{flexWrap:"wrap",gap:1,my:2}}><Chip label="Light + dark"/><Chip label="Transparent canvas"/><Chip label="React 18+"/></Stack>
-        <Stack divider={<Divider/>} spacing={1} sx={{my:3}}>{[['DotSphere.js + types','React wrapper'],['sphere.js','Canvas runtime'],['sphere-config.js','Prepared design'],['README.md','Integration guide']].map(([file,description])=><Stack key={file} direction="row" useFlexGap sx={{justifyContent:"space-between",flexWrap:"wrap",gap:1}}><Typography variant="body2">{file}</Typography><Hint>{description}</Hint></Stack>)}</Stack>
+        <ToggleButtonGroup exclusive fullWidth value={exportKind} onChange={(_,value)=>{if(value)setExportKind(value);}} aria-label="What to download" sx={{mb:2}}>
+          <ToggleButton value="component">Full Component</ToggleButton><ToggleButton value="config">Config Only</ToggleButton>
+        </ToggleButtonGroup>
+        {exportKind==='component'?<>
+          <DialogContentText>Drop these files into your React app. The editor and design-system dependencies stay here.</DialogContentText>
+          <Stack direction="row" useFlexGap sx={{flexWrap:"wrap",gap:1,my:2}}><Chip label="Light + dark"/><Chip label="Transparent canvas"/><Chip label="React 18+"/></Stack>
+          <Stack divider={<Divider/>} spacing={1} sx={{my:3}}>{[['DotSphere.js + types','React wrapper'],['sphere.js','Canvas runtime'],['sphere-config.js','Prepared design'],['README.md','Integration guide']].map(([file,description])=><Stack key={file} direction="row" useFlexGap sx={{justifyContent:"space-between",flexWrap:"wrap",gap:1}}><Typography variant="body2">{file}</Typography><Hint>{description}</Hint></Stack>)}</Stack>
+        </>:<>
+          <DialogContentText>Already installed the component? Add this design as another config. Save it in your orbit folder next to sphere-config.js; the runtime and wrapper stay the same.</DialogContentText>
+          <Stack divider={<Divider/>} spacing={1} sx={{my:3}}><Stack direction="row" useFlexGap sx={{justifyContent:"space-between",flexWrap:"wrap",gap:1}}><Typography variant="body2" sx={{overflowWrap:'anywhere'}}>{configTarget.file}</Typography><Hint>Prepared design · light + dark</Hint></Stack></Stack>
+        </>}
         <Stack direction="row" sx={{alignItems:"center",justifyContent:"space-between",gap:1}}><Typography variant="subtitle2" component="h3">Use in Your App</Typography><Button onClick={copyCode} startIcon={<Icon name={copied?'check':'content_copy'}/>}>{copied?'Copied':'Copy Code'}</Button></Stack>
-        <Box component="pre" tabIndex={0} sx={{m:0,my:1,p:2,borderRadius:1,bgcolor:'background.level0',overflow:'auto',typography:'body2',fontFamily:'monospace',whiteSpace:'pre'}}><code>{usage}</code></Box>
-        <Typography variant="caption" color="text.secondary">{measured} for the renderer and prepared design, excluding React. The ZIP contains readable source and documentation.</Typography>
+        <Box component="pre" tabIndex={0} sx={{m:0,my:1,p:2,borderRadius:1,bgcolor:'background.level0',overflow:'auto',typography:'body2',fontFamily:'monospace',whiteSpace:'pre'}}><code>{snippet}</code></Box>
+        <Typography variant="caption" color="text.secondary">{exportKind==='component'?measured+' for the renderer and prepared design, excluding React. The ZIP contains readable source and documentation.':'Each config carries its own geometry, motion, and both themes, so several designs can share one installed component.'}</Typography>
       </DialogContent>
-      <DialogActions sx={{flexWrap:'wrap',gap:1}}><Button onClick={()=>setExportOpen(false)}>Close</Button><Button variant="contained" loading={busy} onClick={exportReact} startIcon={<Icon name="download"/>}>Download React Component</Button></DialogActions>
+      <DialogActions sx={{flexWrap:'wrap',gap:1}}><Button onClick={()=>setExportOpen(false)}>Close</Button>{exportKind==='component'?<Button variant="contained" loading={busy} onClick={exportReact} startIcon={<Icon name="download"/>}>Download React Component</Button>:<Button variant="contained" onClick={downloadConfig} startIcon={<Icon name="download"/>}>Download Config</Button>}</DialogActions>
     </Dialog>
     <Snackbar key={toast?.key} open={!!toast} autoHideDuration={toast?.severity==='error'?null:5000} onClose={(_,reason)=>{if(reason!=='clickaway')setToast(null);}}>
       <Alert severity={toast?.severity||'success'} onClose={()=>setToast(null)}>{toast?.message}</Alert>

@@ -33,6 +33,7 @@ Open http://127.0.0.1:4173. The committed dist directory can also be served dire
 - Rotation speed, X/Y/Z/tumble axis, direction, drift amount/speed, shimmer amount/speed, breathing amount/speed.
 - Light/dark/compare preview, pause, reduced motion, offscreen suspension.
 - React ZIP with TypeScript declarations and integration guide, transparent PNG.
+- Config-only download (`<design>-config.js`) for adding another design to an already-installed component.
 - Gzip size estimate includes runtime, React wrapper, and complete prepared design, excluding React itself.
 
 ## Design system
