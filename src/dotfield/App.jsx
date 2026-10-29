@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Card, CardContent, CardHeader, Checkbox, Container, FormControlLabel, IconButton, Link, MenuItem, Slider, Snackbar, Stack, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography, useMediaQuery } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Card, CardContent, CardHeader, Checkbox, Container, FormControlLabel, IconButton, MenuItem, Slider, Snackbar, Stack, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { useColorScheme, useTheme } from '@mui/material/styles';
 import { Icon } from '../icons';
+import { ExportDialog } from '../ExportDialog';
+import { createZip } from '../../dist/export.js';
+import { saveFile } from '../save';
 import { fieldFrame, toneIndexes } from '../../exports/dotfield/dotfield.js';
-import { colorsFromTheme, compositions, defaults, fromConfig, parseConfig, ranges, toConfig, toSVG } from './config';
+import { colorsFromTheme, compositions, configFile, configSource, defaults, fromConfig, guide, parseConfig, ranges, toConfig, toSVG, usage } from './config';
 
-const ZIP_URL = 'https://brenertiv.github.io/orbit-dot-sphere-studio/dotfield/dotfield-react.zip';
 const two = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const whole = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
 function formatValue(id, v) { const r = ranges[id]; return r.unit === 'px' ? whole.format(v) + '\u00a0px' : r.integer ? whole.format(v) : two.format(v); }
@@ -126,6 +128,7 @@ export function FieldView({ active = true }) {
   const [importOpen, setImportOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [toast, setToast] = useState(null);
+  const [exportOpen, setExportOpen] = useState(false), [busy, setBusy] = useState(false);
   const sizes = useRef({}), dragDepth = useRef(0);
   const change = patch => setState(s => ({ ...s, ...patch }));
   const notify = (message, severity = 'success') => setToast({ message, severity, key: Date.now() });
@@ -173,9 +176,24 @@ export function FieldView({ active = true }) {
     setBaked(null);
     change({ composition: 'source' });
   }
-  async function copyConfig() {
-    try { await navigator.clipboard.writeText(configText); notify('Config copied.'); }
-    catch { notify('Copy isn’t available here. Open Show Config and copy it with your keyboard.', 'error'); }
+  const configTarget = configFile(state);
+  async function exportReact() {
+    setBusy(true);
+    try {
+      const sources = Object.fromEntries(await Promise.all(['DotField.jsx', 'DotField.d.ts', 'dotfield.js'].map(async name => {
+        const res = await fetch(new URL('./dotfield/' + name, import.meta.url));
+        if (!res.ok) throw new Error('Couldn’t load the component files. Reload and try again.');
+        return [name, await res.text()];
+      })));
+      await saveFile('dotfield-react.zip', createZip({ ...sources, 'field-config.js': configSource(config), 'README.md': guide }, 'dotfield'), 'application/zip');
+      notify('React component downloaded.');
+    } catch (error) {
+      if (error?.code !== 'declined') notify(error?.message || 'The component couldn’t be saved.', 'error');
+    } finally { setBusy(false); }
+  }
+  async function downloadConfig() {
+    try { await saveFile(configTarget.file, configSource(config), 'text/javascript'); notify('Config downloaded.'); }
+    catch (error) { if (error?.code !== 'declined') notify(error?.message || 'The config couldn’t be saved.', 'error'); }
   }
   async function downloadSVG() {
     const t = clock.now();
@@ -244,8 +262,8 @@ export function FieldView({ active = true }) {
               <Typography variant="body2" color="text.secondary" sx={{ minWidth: 0, overflowWrap: 'anywhere', fontVariantNumeric: 'tabular-nums' }}>{meta}</Typography>
               <Stack direction="row" useFlexGap sx={{ flexWrap: 'wrap', gap: 1 }}>
                 {!reduced && <Button variant="outlined" onClick={() => setPaused(v => !v)} aria-label={paused ? 'Resume animation' : 'Pause animation'}>{paused ? 'Resume' : 'Pause'}</Button>}
-                <Button variant="outlined" startIcon={<Icon name="content_copy" />} onClick={copyConfig}>Copy Config</Button>
-                <Button variant="contained" startIcon={<Icon name="download" />} onClick={downloadSVG}>{schemes.length > 1 ? 'Download SVGs' : 'Download SVG'}</Button>
+                <Button variant="outlined" startIcon={<Icon name="download" />} onClick={downloadSVG}>{schemes.length > 1 ? 'Download SVGs' : 'Download SVG'}</Button>
+                <Button variant="contained" startIcon={<Icon name="download" />} onClick={() => setExportOpen(true)}>Export React</Button>
               </Stack>
             </Stack>
             {reduced && <Hint>Static preview · reduced motion is on</Hint>}
@@ -294,7 +312,6 @@ export function FieldView({ active = true }) {
                 helperText={importError || 'Copied from this page, or a *-config.js object.'} slotProps={{ htmlInput: { spellCheck: false, style: { fontFamily: 'monospace' } } }} />
               <Stack direction="row" sx={{ gap: 1 }}><Button variant="outlined" onClick={applyImport}>Apply Config</Button><Button onClick={() => { setImportOpen(false); setImportError(''); }}>Cancel</Button></Stack>
             </>}
-            <Typography variant="body2"><Link href={ZIP_URL}>Download the React component</Link> <Typography component="span" variant="body2" color="text.secondary">(zip). Paste copied configs into it.</Typography></Typography>
           </Section>
           <Box sx={{ p: 2, display: 'flex', alignItems: 'flex-start', gap: 1 }}>
             <TextField label="Seed" type="number" value={state.seed} onChange={e => { const v = Number(e.target.value); if (Number.isInteger(v) && v >= 0) change({ seed: v }); }} slotProps={{ htmlInput: { min: 0, step: 1, inputMode: 'numeric' } }} fullWidth />
@@ -303,6 +320,14 @@ export function FieldView({ active = true }) {
         </Card>
       </Box>
     </Container>
+
+    <ExportDialog open={exportOpen} onClose={() => setExportOpen(false)} busy={busy} onDownloadComponent={exportReact} onDownloadConfig={downloadConfig} onError={message => notify(message, 'error')}
+      component={{ intro: 'Drop the dotfield folder into your React app. The editor and design-system dependencies stay here.', chips: ['Light + dark', 'Transparent canvas', 'React 18+'],
+        files: [['DotField.jsx + types', 'React component'], ['dotfield.js', 'Canvas renderer'], ['field-config.js', 'This design'], ['README.md', 'Integration guide']],
+        usage, caption: 'The ZIP contains readable source and documentation. React is supplied by your app.' }}
+      config={{ intro: 'Already installed the component? Add this design as another config. Save it in your dotfield folder next to field-config.js; the renderer and component stay the same.',
+        files: [[configTarget.file, 'This design · light + dark']], usage: configTarget.usage,
+        caption: state.composition === 'source' ? 'The image is baked into the config as a small luminance grid, so no image file ships with it.' : 'Each config carries its own composition, motion, and both themes, so several designs can share one installed component.' }} />
 
     <Snackbar key={toast?.key} open={!!toast} autoHideDuration={toast?.severity === 'error' ? null : 5000} onClose={(_, reason) => { if (reason !== 'clickaway') setToast(null); }}>
       <Alert severity={toast?.severity || 'success'} onClose={() => setToast(null)}>{toast?.message}</Alert>

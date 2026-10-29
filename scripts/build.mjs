@@ -14,4 +14,7 @@ await writeFile(join(tmpdir(),'orbit-build-meta.json'),JSON.stringify(result.met
 // The Icon tab zips the OrbitIcon component with the current design; it fetches these sources at export time.
 await mkdir('dist/orbit-icon',{recursive:true});
 for(const name of ['orbitIcon.js','OrbitIcon.jsx','OrbitIcon.d.ts'])await copyFile('exports/orbiticon/'+name,'dist/orbit-icon/'+name);
+// Field's Export React zips the DotField component with the current design the same way.
+await mkdir('dist/dotfield',{recursive:true});
+for(const name of ['dotfield.js','DotField.jsx','DotField.d.ts'])await copyFile('exports/dotfield/'+name,'dist/dotfield/'+name);
 console.log('Built Kilowatt Studio (Orbit + Field + Icon) → dist/studio.js. Runtime/export modules remain separate.');
