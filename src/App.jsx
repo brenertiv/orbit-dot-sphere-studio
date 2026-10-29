@@ -210,13 +210,6 @@ export function OrbitView() {
           </Box>
         </Card>
       </Box>
-      <Card variant="outlined" sx={{mt:3}}><CardContent><Stack direction={{xs:'column',sm:'row'}} sx={{alignItems:{sm:'center'},justifyContent:"space-between",gap:2}}>
-        <Box><Typography variant="h6" component="h2">React Export</Typography><Typography variant="body2" color="text.secondary">{measured} · renderer and design, excluding React</Typography></Box>
-        <Button variant="outlined" startIcon={<Icon name="download"/>} onClick={()=>setExportOpen(true)}>Get the Component</Button>
-      </Stack></CardContent></Card>
-      <Stack component="footer" direction={{xs:'column',sm:'row'}} sx={{justifyContent:"space-between",alignItems:{sm:'center'},gap:2,py:3}}>
-        <Typography variant="caption" color="text.secondary">Orbit · Designs stay in your browser</Typography>
-      </Stack>
     </Container>
     <Dialog open={presetDialog!==null} onClose={()=>setPresetDialog(null)} fullWidth maxWidth="sm" aria-labelledby="preset-heading">
       <Box component="form" onSubmit={savePreset}>
