@@ -134,9 +134,12 @@ export function OrbitView() {
               <PreviewPane appearance="light" design={design} paused={paused} renderer={light} canvas={lightCanvas} visible={view!=='dark'}/>
             </Box>
             <CardContent>
-              <Stack direction="row" sx={{alignItems:"center",justifyContent:"space-between",gap:2}}>
+              <Stack direction="row" useFlexGap sx={{alignItems:"center",justifyContent:"space-between",flexWrap:'wrap',gap:2}}>
                 <Typography variant="body2" sx={{overflowWrap:'anywhere',minWidth:0}}>{selectedName}</Typography>
                 <Stack direction="row" useFlexGap sx={{flexWrap:'wrap',gap:1}}>
+                  <Button onClick={()=>importInput.current?.click()}>Import Design</Button>
+                  <Button onClick={()=>{download(new Blob([JSON.stringify(store.exportDesign(),null,2)],{type:'application/json'}),'orbit-design.json');notify('Editable design saved.');}}>Save Design</Button>
+                  <Button onClick={savePNG}>Save PNG</Button>
                   {!reduced&&<Button variant="outlined" onClick={()=>setPaused(v=>!v)} aria-label={paused?'Play animation':'Pause animation'}>{paused?'Resume':'Pause'}</Button>}
                   <Button variant="contained" startIcon={<Icon name="download"/>} onClick={()=>setExportOpen(true)}>Export React</Button>
                 </Stack>
@@ -215,7 +218,6 @@ export function OrbitView() {
       </Stack></CardContent></Card>
       <Stack component="footer" direction={{xs:'column',sm:'row'}} sx={{justifyContent:"space-between",alignItems:{sm:'center'},gap:2,py:3}}>
         <Typography variant="caption" color="text.secondary">Orbit · Designs stay in your browser</Typography>
-        <Stack direction="row" useFlexGap sx={{flexWrap:"wrap",gap:1}}><Button onClick={()=>importInput.current?.click()}>Import Design</Button><Button onClick={()=>{download(new Blob([JSON.stringify(store.exportDesign(),null,2)],{type:'application/json'}),'orbit-design.json');notify('Editable design saved.');}}>Save Design</Button><Button onClick={savePNG}>Save PNG</Button></Stack>
       </Stack>
     </Container>
     <input ref={importInput} type="file" accept="application/json,.json" hidden onChange={importDesign}/>
