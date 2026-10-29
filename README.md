@@ -43,7 +43,7 @@ The source theme is used by the generator only. Downloaded components contain no
 
 ## Reference colors
 
-Brand, Navy, Slate, and Green dot palettes are available alongside the four original palettes. Each contains paired light/dark colors and saves with named presets and design JSON. Slate uses navy tones on light backgrounds so the dots remain visible. Green values were sampled directly from the supplied swatches. The exported configuration contains only the selected palette, with no additional runtime code.
+Brand, Navy, Slate, and Green dot palettes are available alongside the four original palettes. Each contains paired light/dark colors and saves with named presets. Slate uses navy tones on light backgrounds so the dots remain visible. Green values were sampled directly from the supplied swatches. The exported configuration contains only the selected palette, with no additional runtime code.
 
 ## Custom presets
 
