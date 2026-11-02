@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prepareDesign,presets,validateSettings } from '../dist/geometry.js';
+import { palettes,prepareDesign,presets,validateSettings } from '../dist/geometry.js';
 import { createZip,configFile,configSource } from '../dist/export.js';
 import { writeFile,mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -23,6 +23,11 @@ test('all presets have valid, unique links and bounded coordinates',()=>{
 test('import rejects invalid or expensive settings',()=>{
   for(const input of [null,{count:1e8},{count:NaN},{seed:-1},{connections:7},{speed:'0.4'},{palette:'bad'},{palette:'toString'},{axis:'diagonal'},{direction:0},{breathing:1},{distribution:'bad'},{pattern:'grid'},{waveHeight:1},{waveSpeed:Infinity},{waveFrequency:0},{twist:3},{colorMode:'invalid'},{darkColor:'red'},{lightColor:'#gggggg'}])assert.throws(()=>validateSettings(input));
   assert.equal(validateSettings({count:100}).count,100);
+});
+test('removed palettes load as their closest remaining palette',()=>{
+  for(const [old,now] of Object.entries({aurora:'brand',glacier:'navy',ember:'green',mono:'slate'})){assert.equal(Object.hasOwn(palettes,old),false);assert.equal(validateSettings({palette:old}).palette,now);}
+  assert.deepEqual(Object.keys(palettes),['brand','navy','slate','green']);
+  for(const preset of Object.values(presets))assert.ok(Object.hasOwn(palettes,preset.palette));
 });
 test('patterns retain exact counts, shell radius, and seeded reproducibility',()=>{
   for(const pattern of ['random','even','rings','spiral'])for(const count of [100,123,560,1200]){
