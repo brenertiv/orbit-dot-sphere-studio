@@ -5,7 +5,7 @@ import {prepareDesign,presets,validateSettings} from '../dist/geometry.js';
 import {createPresetLibrary} from '../dist/preset-library.js';
 
 test('existing designs keep their original sphere geometry and exported configuration',()=>{
-  const hashes={reference:'35184bd9246785287a94e2541afdd64d3cd16970ca1b08876d34973fed852270',halo:'d821e733670185c933180a6e1b39ebeff5b089854282c9f1a131d35622761765',drift:'a954f94f70cbe6fb19a5a2be654330f1312d20df8239f825cc729813ddb12920',waveform:'cef3e96f99abb16b49b5a5903f4fcfe0fa44e78e7bfd81f99573489b6e6e32a0'};
+  const hashes={reference:'bfa0611a318fca294b0e07bbf75be34586d52f1fbd857a705be37917d329390b',halo:'f270e45e8a8431be42ecc179e5bc6f1f08dd461e7cff9b5f45444ffe174a9ef3',drift:'c0da00ae5a32728b78ada6be1186b15a15d51b3e4b27a7f17cf8b3409176f6a1',waveform:'cef3e96f99abb16b49b5a5903f4fcfe0fa44e78e7bfd81f99573489b6e6e32a0'};
   for(const [id,preset] of Object.entries(presets)){
     assert.equal(validateSettings(preset).shape,'sphere');
     assert.equal(createHash('sha256').update(JSON.stringify(prepareDesign(preset))).digest('hex'),hashes[id]);

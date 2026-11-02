@@ -3,17 +3,15 @@ export const palettes = {
   brand: { name:'Brand', dark:['#2ea6e1','#74c4eb','#96d3f0','#51b5e6'], light:['#1c6487','#2585b4','#12425a','#2ea6e1'] },
   navy: { name:'Navy', dark:['#88beec','#72abdb','#6ca2cf','#4f7da3'], light:['#365670','#294a5f','#1b3e4f','#426a8a'] },
   slate: { name:'Slate', dark:['#c3cfdd','#dce3ec','#edf1f5','#ffffff'], light:['#365670','#426a8a','#294a5f','#4f7da3'] },
-  green: { name:'Green', dark:['#00e5a0','#84f4c1','#1bc28c','#bcfedc'], light:['#0a8864','#086d51','#00533e','#0fa477'] },
-  aurora: { name: 'Aurora', dark: ['#647ce3','#5bd4eb','#8970d3','#a9e784'], light: ['#3d53ac','#007e97','#7950a9','#4a812c'] },
-  glacier: { name: 'Glacier', dark: ['#74a1ff','#8cdbef','#b5d6ff','#67b7d2'], light: ['#315caa','#087e99','#546d9d','#27738b'] },
-  ember: { name: 'Ember', dark: ['#ee9973','#f4cc98','#d98292','#eab84f'], light: ['#a64924','#9b6b16','#a73d60','#90711a'] },
-  mono: { name: 'Graphite', dark: ['#e6e9e5','#aebcb6','#c8d1cf','#879a91'], light: ['#273f35','#53695e','#384f43','#6b7e74'] }
+  green: { name:'Green', dark:['#00e5a0','#84f4c1','#1bc28c','#bcfedc'], light:['#0a8864','#086d51','#00533e','#0fa477'] }
 };
+// Removed palettes still load: saved designs, drafts and imported files switch to the closest remaining one.
+const retiredPalettes = { aurora:'brand', glacier:'navy', ember:'green', mono:'slate' };
 export const presets = {
-  reference: { name: 'Constellation', subtitle: 'Inspired by your reference', count: 560, size: 2.3, connections: 2, lineOpacity: 0.16, speed: 0.24, deformation: 0.12, pulse: 0.13, depth: 0.7, seed: 4219, palette: 'aurora', distribution: 'layered' },
-  halo: { name: 'Halo', subtitle: 'Quiet, precise, weightless', count: 420, size: 1.8, connections: 0, lineOpacity: 0.14, speed: 0.15, deformation: 0.025, pulse: 0.08, depth: 0.85, seed: 7612, palette: 'glacier', distribution: 'shell' },
-  drift: { name: 'Solar drift', subtitle: 'Warm light, organic motion', count: 380, size: 2.8, connections: 1, lineOpacity: 0.12, speed: 0.18, deformation: 0.2, pulse: 0.28, depth: 0.6, seed: 1018, palette: 'ember', distribution: 'cloud' },
-  waveform: { name:'Waveform', subtitle:'Flowing folds, inspired by your GIF', count:1200, size:1.7, connections:0, lineOpacity:0.12, speed:0.32, deformation:0, pulse:0, depth:0.24, seed:2408, palette:'mono', distribution:'shell', pattern:'rings', sizeVariation:0, colorMode:'single', darkColor:'#f5f7f7', lightColor:'#28343a', waveHeight:0.14, waveFrequency:1.5, waveSpeed:0.8, twist:1.2, axis:'tumble' }
+  reference: { name: 'Constellation', subtitle: 'Inspired by your reference', count: 560, size: 2.3, connections: 2, lineOpacity: 0.16, speed: 0.24, deformation: 0.12, pulse: 0.13, depth: 0.7, seed: 4219, palette: 'brand', distribution: 'layered' },
+  halo: { name: 'Halo', subtitle: 'Quiet, precise, weightless', count: 420, size: 1.8, connections: 0, lineOpacity: 0.14, speed: 0.15, deformation: 0.025, pulse: 0.08, depth: 0.85, seed: 7612, palette: 'navy', distribution: 'shell' },
+  drift: { name: 'Solar drift', subtitle: 'Warm light, organic motion', count: 380, size: 2.8, connections: 1, lineOpacity: 0.12, speed: 0.18, deformation: 0.2, pulse: 0.28, depth: 0.6, seed: 1018, palette: 'green', distribution: 'cloud' },
+  waveform: { name:'Waveform', subtitle:'Flowing folds, inspired by your GIF', count:1200, size:1.7, connections:0, lineOpacity:0.12, speed:0.32, deformation:0, pulse:0, depth:0.24, seed:2408, palette:'slate', distribution:'shell', pattern:'rings', sizeVariation:0, colorMode:'single', darkColor:'#f5f7f7', lightColor:'#28343a', waveHeight:0.14, waveFrequency:1.5, waveSpeed:0.8, twist:1.2, axis:'tumble' }
 };
 export const motionDefaults = { axis:'y', direction:1, driftSpeed:0.65, pulseSpeed:1.3, breathing:0, breathSpeed:0.6, waveHeight:0, waveFrequency:2.2, waveSpeed:0.8, twist:0 };
 export const shapes = { sphere:'Sphere', ellipsoid:'Ellipsoid', torus:'Torus' };
@@ -119,7 +117,7 @@ export function validateSettings(input) {
       s[key] = ['count','connections','seed'].includes(key) ? Math.round(input[key]) : input[key];
     }
   }
-  if (input.palette !== undefined) { if (!Object.hasOwn(palettes,input.palette)) throw new Error('Unknown palette.'); s.palette=input.palette; }
+  if (input.palette !== undefined) { const palette=Object.hasOwn(retiredPalettes,input.palette)?retiredPalettes[input.palette]:input.palette; if (!Object.hasOwn(palettes,palette)) throw new Error('Unknown palette.'); s.palette=palette; }
   if (input.distribution !== undefined) { if (!['layered','shell','cloud'].includes(input.distribution)) throw new Error('Unknown distribution.'); s.distribution=input.distribution; }
   if (input.axis !== undefined) { if (!['x','y','z','tumble'].includes(input.axis)) throw new Error('Unknown rotation axis.'); s.axis=input.axis; }
   if (input.direction !== undefined) { if (![1,-1].includes(input.direction)) throw new Error('Invalid rotation direction.'); s.direction=input.direction; }

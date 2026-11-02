@@ -49,7 +49,7 @@ test('reduced motion starts static and cancels an in-flight palette transition i
     assert.equal(frames.size,1,'palette transition is pending');
     setReduced(true);
     assert.equal(frames.size,0,'a pending palette transition must stop immediately');
-    assert.equal(ctx.strokeStyle,'rgb(139,158,171)','reduced motion snaps to the target Aurora palette');
+    assert.equal(ctx.strokeStyle,'rgb(139,158,171)','reduced motion snaps to the target palette');
     instance.update(null,{paused:true});setReduced(false);
     assert.equal(frames.size,0,'turning reduced motion off preserves an explicit pause');
   }finally{instance.destroy();dom.window.close();}
