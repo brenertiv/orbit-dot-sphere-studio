@@ -17,6 +17,6 @@ for(const name of ['orbitIcon.js','OrbitIcon.jsx','OrbitIcon.d.ts'])await copyFi
 // Field's Export React zips the DotField component with the current design the same way.
 await mkdir('dist/dotfield',{recursive:true});
 for(const name of ['dotfield.js','DotField.jsx','DotField.d.ts'])await copyFile('exports/dotfield/'+name,'dist/dotfield/'+name);
-// Static assets the editor loads by URL, such as the Enertiv mark in the app bar.
-for(const name of ['enertiv-icon-light.svg','enertiv-icon-dark.svg'])await copyFile('public/'+name,'dist/'+name);
+// Static assets loaded by URL: the Enertiv mark in the app bar, the favicons, and the link-preview image.
+for(const name of ['enertiv-icon-light.svg','enertiv-icon-dark.svg','favicon.svg','apple-touch-icon.png','og-image.png'])await copyFile('public/'+name,'dist/'+name);
 console.log('Built Kilowatt Studio (Orbit + Field + Icon) → dist/studio.js. Runtime/export modules remain separate.');
