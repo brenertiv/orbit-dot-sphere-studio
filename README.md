@@ -97,7 +97,7 @@ The Icon tab (`src/icon/`) designs Enertiv's animated chat avatar: three great c
 - **Two states.** Idle swings the rings (they rock on the axis); thinking spins them (they keep turning, middle ring reversed). Each state has its own motion, amount, direction and drift, and the component blends between them over the blend time. Loops are seamless.
 - **Built for 32 px.** The preview shows 192, 96, 64, 48 and 32 px and a chat row. A smallest-dot size keeps far-left dots visible, and an optional no-overlap rule stops dots clumping where the rings meet.
 - **One renderer.** `exports/orbiticon/orbitIcon.js` (`createOrbitIcon`, `iconFrame`) draws the preview, the exported component and every file export. The build copies it to `dist/orbit-icon/` so the editor can zip it.
-- **Exports.** The `OrbitIcon` React component (zip with the current design; `state="idle" | "thinking"`); an animated SVG per state that plays as a plain image; an animated GIF per state on a solid Kilowatt surface (`src/icon/gif.js`, a small encoder with a fixed palette); a still PNG or SVG. Logic is covered by `tests/icon.test.mjs`.
+- **Exports.** Export React opens the same dialog as Orbit and Field: the `OrbitIcon` React component (zip with the current design; `state="idle" | "thinking"`), or only the config, named with a short hash of the design, for an app that already has the component. Export Images has an animated SVG per state that plays as a plain image; an animated GIF per state on a solid Kilowatt surface (`src/icon/gif.js`, a small encoder with a fixed palette); a still PNG or SVG. Logic is covered by `tests/icon.test.mjs`.
 
 ## GitHub Pages
 
