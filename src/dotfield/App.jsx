@@ -233,14 +233,15 @@ export function FieldView({ active = true }) {
   return <>
     <Container maxWidth="xl" sx={{ py: 3 }}>
       <Box sx={t => ({ display: 'grid', gridTemplateColumns: { xs: 'minmax(0,1fr)', md: t.spacing(44) + ' minmax(0,1fr)' }, gridTemplateAreas: { xs: '"preview" "controls"', md: '"controls preview"' }, gap: 3, alignItems: 'start' })}>
-        <Card variant="outlined" component="section" aria-label="Illustration preview" sx={{ gridArea: 'preview', minWidth: 0, position: { md: 'sticky' }, top: 16 }}>
-          <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+        <Card variant="outlined" component="section" aria-label="Illustration preview" sx={{ gridArea: 'preview', minWidth: 0, position: { md: 'sticky' }, top: 16, display: 'flex', flexDirection: 'column', containerType: 'inline-size', maxHeight: { md: 'calc(100dvh - 113px)' } }}>
+          <Box sx={{ p: 2, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Typography variant="h6" component="h1">Preview</Typography>
             <ToggleButtonGroup exclusive value={shown} onChange={(_, v) => { if (v) setView(v); }} aria-label="Preview surface">
               <ToggleButton value="light">Light</ToggleButton><ToggleButton value="dark">Dark</ToggleButton><ToggleButton value="compare">Compare</ToggleButton>
             </ToggleButtonGroup>
           </Box>
-          <Box component="figure" aria-label={`Dot field preview: ${meta}, on the ${schemes.join(' and ')} surface${schemes.length > 1 ? 's' : ''}`} sx={{ m: 0, position: 'relative', display: 'flex', aspectRatio: '4 / 3' }} {...dragProps}>
+          {/* 75cqw is 4:3 of the card's width. On md+ the card is capped below the 65px tab bar and 24px page padding, with 24px to spare, so the field gives up height to keep the whole card in the window. */}
+          <Box component="figure" aria-label={`Dot field preview: ${meta}, on the ${schemes.join(' and ')} surface${schemes.length > 1 ? 's' : ''}`} sx={{ m: 0, position: 'relative', display: 'flex', height: '75cqw', minHeight: t => t.spacing(30), flexShrink: 1 }} {...dragProps}>
             {['light', 'dark'].map(scheme => {
               const p = theme.colorSchemes[scheme].palette;
               return <Box key={scheme} sx={{ display: schemes.includes(scheme) ? 'flex' : 'none', flexDirection: 'column', flex: 1, minWidth: 0, bgcolor: p.background.level0, color: p.text.secondary }}>
@@ -257,7 +258,7 @@ export function FieldView({ active = true }) {
               </Stack>
             </Box>}
           </Box>
-          <CardContent>
+          <CardContent sx={{ flexShrink: 0 }}>
             <Stack direction="row" useFlexGap sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
               <Typography variant="body2" color="text.secondary" sx={{ minWidth: 0, overflowWrap: 'anywhere', fontVariantNumeric: 'tabular-nums' }}>{meta}</Typography>
               <Stack direction="row" useFlexGap sx={{ flexWrap: 'wrap', gap: 1 }}>
