@@ -60,6 +60,8 @@ export function Studio() {
     })} />
     <AppBar position="static" color="default" elevation={0} sx={{ bgcolor: 'background.level2', borderBottom: 1, borderColor: 'divider' }}>
       <Toolbar sx={{ gap: 2 }}>
+        {/* The Enertiv mark: a light-surface and a dark-surface variant, copied from public/ by the build. */}
+        <Box component="img" src={'./enertiv-icon-' + editorMode + '.svg'} alt="Enertiv" width={40} height={40} sx={{ display: { xs: 'none', sm: 'block' }, flexShrink: 0, mr: -1 }} />
         <Typography variant="h5" component="p" sx={{ color: 'text.primary', whiteSpace: 'nowrap', display: { xs: 'none', sm: 'block' } }}>Kilowatt Studio</Typography>
         <Tabs value={tool} onChange={(_, id) => choose(id)} aria-label="Studio tools" sx={{ alignSelf: 'flex-end' }}>
           {tools.map(t => <Tab key={t.id} value={t.id} label={t.label} id={'tab-' + t.id} aria-controls={'panel-' + t.id} />)}
